@@ -8,7 +8,7 @@ namespace pddl_planner
     class PDDLPlannerInterface
     {
     public:
-        virtual Plan plan(const std::string& problem, const std::string& actions, const std::string& domain) { throw PlanGenerationException("Plan method not implemented"); }
+        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain) { throw PlanGenerationException("Plan method not implemented"); }
     };
 
 }

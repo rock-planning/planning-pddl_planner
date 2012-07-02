@@ -44,7 +44,7 @@ namespace pddl_planner
         /**
          * \throws PlanGenerationException on failure
          */
-        Plan plan(const std::string& goal);
+        PlanCandidates plan(const std::string& goal);
 
     private: 
         PDDLPlannerInterface* mPlanner;

@@ -41,7 +41,7 @@ std::string PDDLPlanner::getDomainDescriptions() const
     return domainDescriptions;
 }
 
-Plan PDDLPlanner::plan(const std::string& goal)
+PlanCandidates PDDLPlanner::plan(const std::string& goal)
 {
     if(!mPlanner)
     {

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 
@@ -68,6 +69,31 @@ namespace pddl_planner
             }
             boost::algorithm::trim(plan);
             return plan;
+        }
+    };
+
+    struct PlanCandidates
+    {
+        std::vector<Plan> plans;
+
+        void addPlan(const Plan& plan)
+        {
+            plans.push_back(plan);
+        }
+
+        std::string toString()
+        {
+            std::string candidates;
+            std::vector<Plan>::iterator it = plans.begin();
+            int index = 0;
+            for(;it != plans.end(); ++it)
+            {
+                std::stringstream ss;
+                ss << index++ << "\t" << it->toString() << "\n";
+                candidates += ss.str();
+            }
+            return candidates;
+
         }
     };
 
