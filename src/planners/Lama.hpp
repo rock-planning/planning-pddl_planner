@@ -14,6 +14,10 @@ namespace lama
     class Planner : public PDDLPlannerInterface
     {
     public:
+        std::string getName() const { return "LAMA"; }
+
+        int getVersion() const { return 1; }
+
         /**
          * Create plan candidates for the given pddl planning problem
          */
