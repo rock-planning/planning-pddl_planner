@@ -1,6 +1,7 @@
 <package>
   <description brief="PDDL planner interface">
-    Simple pddl planner interface
+      Simple pddl planner interface, further information about PDDL can be found at: 
+      http://ipc.informatik.uni-freiburg.de/PddlExtension,
   </description>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
   <license></license>

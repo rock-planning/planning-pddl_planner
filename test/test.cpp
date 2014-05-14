@@ -2,8 +2,9 @@
 #include <boost/test/included/unit_test.hpp>
 #include <pddl_planner/PDDLPlanner.hpp>
 #include <pddl_planner/planners/Lama.hpp>
+#include <pddl_planner/representation/Domain.hpp>
 
-BOOST_AUTO_TEST_CASE(mainLamaTest)
+BOOST_AUTO_TEST_CASE(main_lama_test)
 {
 
     using namespace pddl_planner;
@@ -22,4 +23,55 @@ BOOST_AUTO_TEST_CASE(mainLamaTest)
         printf("Error: %s\n", e.what());
         BOOST_ASSERT(false);
     }
+}
+
+BOOST_AUTO_TEST_CASE(domain_test)
+{
+    using namespace pddl_planner;
+    using namespace pddl_planner::representation;
+
+    Domain domain("rimres");
+
+    domain.addRequirement("strips");
+    domain.addRequirement("equality");
+    domain.addRequirement("typing");
+    domain.addRequirement("conditional-effects");
+
+    domain.addType("location");
+    domain.addType("physob_id");
+    domain.addType("physob_type");
+
+    domain.addConstant( Constant("sherpa","physob_type") );
+    domain.addConstant( Constant("crex","physob_type") );
+    domain.addConstant( Constant("payload","physob_type") );
+
+    BOOST_REQUIRE_MESSAGE( domain.isConstant("sherpa"), "Has constant: sherpa" );
+    BOOST_REQUIRE_MESSAGE( domain.isConstant("crex"), "Has constant: crex" );
+    BOOST_REQUIRE_MESSAGE( domain.isConstant("payload"), "Has constant: payload" );
+
+    domain.addPredicate( Predicate("at", TypedItem("?x","physob_id"),TypedItem("?l","physob_id")) );
+    domain.addPredicate( Predicate("is_a", TypedItem("?x","physob_id"),TypedItem("?r","physob_type")) );
+    domain.addPredicate( Predicate("connected", TypedItem("?x","physob_id"),TypedItem("?y","physob_id")) ) ;
+    domain.addPredicate( Predicate("cannot_move", TypedItem("?x","physob_id")) );
+
+    Expression andExpr("and","?a","?b");
+    Expression notExpr("not", andExpr);
+    BOOST_REQUIRE_MESSAGE(andExpr.toLISP() == "(and ?a ?b)", andExpr.toLISP());
+    BOOST_REQUIRE_MESSAGE(notExpr.toLISP() == "(not (and ?a ?b))", notExpr.toLISP());
+
+    representation::Action move("move", TypedItem("obj","physob_id"), TypedItem("m","location"), TypedItem("l","location"));
+    Expression precondition("and", Expression("at", "?obj", "?m"), Expression("not", Expression("=", "?m", "?l")), Expression("not", Expression("cannot_move","?obj")));
+    move.addPrecondition(precondition);
+
+    Expression effect("and", Expression("at","?obj","?m"), Expression("not", Expression("at","?m","?l")), Expression("forall", Expression("?z"), Expression("when", Expression("and", Expression("connected","?z","?obj"), Expression("not", Expression("=","?z","?obj"))), Expression("and", Expression("at","?z","?l"), Expression("not", Expression("at","?z","?m"))))));
+
+    move.addEffect(effect);
+
+
+
+    domain.addAction(move);
+
+
+
+    BOOST_TEST_MESSAGE( domain.toLISP() );
 }
