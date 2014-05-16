@@ -21,7 +21,7 @@ const std::string Planner::msTempDirBasename = "/tmp";
 
 PlanCandidates Planner::plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions)
 {
-    LOG_DEBUG("Planner called with problem: '%s'");
+    LOG_DEBUG("Planner called with problem: '%s'", problem.c_str());
 
     int result = system("which lama-planner");
     if(result != 0)
