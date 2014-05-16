@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <map>
+#include <pddl_planner/representation/Problem.hpp>
 #include <pddl_planner/PDDLPlannerTypes.hpp>
 
 namespace pddl_planner
@@ -45,6 +46,12 @@ namespace pddl_planner
          * \throws PlanGenerationException on failure
          */
         PlanCandidates plan(const std::string& goal);
+
+        /**
+         * Generate a plan for a given problem
+         * \throws PlanGenerationException on failure
+         */
+        PlanCandidates plan(const representation::Problem& problem);
 
     private: 
         PDDLPlannerInterface* mPlanner;

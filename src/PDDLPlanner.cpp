@@ -41,14 +41,20 @@ std::string PDDLPlanner::getDomainDescriptions() const
     return domainDescriptions;
 }
 
-PlanCandidates PDDLPlanner::plan(const std::string& goal)
+PlanCandidates PDDLPlanner::plan(const std::string& problem)
 {
     if(!mPlanner)
     {
         throw PlanGenerationException("No planner available");
     }
 
-    return mPlanner->plan(goal, getActionDescriptions(), getDomainDescriptions());
+    return mPlanner->plan(problem, getActionDescriptions(), getDomainDescriptions());
+}
+
+PlanCandidates PDDLPlanner::plan(const representation::Problem& problem)
+{
+    setDomainDescription(problem.domain.name, problem.domain.toLISP());
+    return plan(problem.toLISP());
 }
 
 }
