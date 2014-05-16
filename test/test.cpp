@@ -139,6 +139,7 @@ BOOST_AUTO_TEST_CASE(domain_test)
 
     BOOST_TEST_MESSAGE( problem.toLISP() );
     BOOST_TEST_MESSAGE( problem.domain.toLISP() );
+    BOOST_REQUIRE_NO_THROW( problem.validate() );
 
     lama::Planner planner;
     PDDLPlanner pddlPlanner(&planner);
@@ -146,4 +147,13 @@ BOOST_AUTO_TEST_CASE(domain_test)
 
     BOOST_TEST_MESSAGE( "PlanCandidates:\n" << planCandidates.toString());
     BOOST_ASSERT(planCandidates.plans.size() == 2);
+
+    problem.addGoal( Expression("a","sherpa_0","mission1"));
+    try {
+        problem.validate();
+        BOOST_REQUIRE_MESSAGE(false, "Validation expected to throw, but did not");
+    } catch(const std::runtime_error& e)
+    {
+        BOOST_TEST_MESSAGE( e.what() );
+    }
 }

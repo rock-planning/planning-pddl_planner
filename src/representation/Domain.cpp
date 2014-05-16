@@ -42,6 +42,33 @@ VariableManager::VariableManager(const ArgumentList& arguments)
     }
 }
 
+void VariableManager::push(const Label& label)
+{
+    mOperatorStack.push_back(label);
+}
+
+Label VariableManager::pop()
+{
+    if(mOperatorStack.empty())
+    {
+        throw std::runtime_error("pddl_planner::representation::VariableManager::pop cannot pop element from empty stack");
+    }
+
+    Label label = mOperatorStack.back();
+    mOperatorStack.pop_back();
+    return label;
+}
+
+std::string VariableManager::currentOperatorStack() const
+{
+    std::string txt;
+    BOOST_FOREACH(Label l, mOperatorStack)
+    {
+        txt += "|" + l + "|";
+    }
+    return txt;
+}
+
 std::string VariableManager::canonize(const std::string& name)
 {
     // make sure a valid variable is passed
@@ -415,7 +442,7 @@ void Domain::validate(const Expression& e, const VariableManager& variableManage
         LOG_DEBUG_S << "Validating atomic statement: '" << e.label << "'";
         if(! (isConstant(e.label) || isType(e.label) || variableManager.isKnownVariable(e.label)))
         {
-            throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' is neither registered constant nor type nor local variable");
+            throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.currentOperatorStack() + "' is not a registered constant, type or local variable");
         }
     } else if( isPredicate(e.label) )
     {
@@ -445,8 +472,8 @@ void Domain::validate(const Expression& e, const VariableManager& variableManage
             validate(*ePtr, variableManager);
         }
     } else {
-        LOG_DEBUG_S << "validating expression '" << e.label << "' failed -- seems to be neither constant, predicate, action or known variable";
-        throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' cannot be validate since its neither atomic, a predicate or action or a known variable");
+        LOG_DEBUG_S << "expression '" << e.label << "' is not a known constant, predicate, action or variable";
+        throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.currentOperatorStack() + "' is neither a known constant, predicate, action or variable");
     }
 }
 

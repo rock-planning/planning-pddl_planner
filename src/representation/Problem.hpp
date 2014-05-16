@@ -40,6 +40,12 @@ struct Problem
     bool undefined() const { return goals.empty() || domain.isNull(); }
 
     /**
+     * Perform simple syntax check
+     * \throw std::runtime_error if syntax has errors
+     */
+    void validate() const;
+
+    /**
      * Generate the problem in a LISP representation
      * \return problem definition in LISP
      */

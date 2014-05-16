@@ -12,7 +12,8 @@ Problem::Problem(const std::string& name, const Domain& domain)
 
 void Problem::addObject(const TypedItem& object, bool overwrite)
 {
-    objects.push_back( object );
+    //objects.push_back( object );
+    domain.addConstant(object, overwrite);
 }
 
 void Problem::addInitialStatus(const Expression& e)
@@ -28,6 +29,32 @@ void Problem::addInitialStatus(const Expression& e)
 void Problem::addGoal(const Expression& e)
 {
     goals.push_back(e);
+}
+
+void Problem::validate() const
+{
+    try {
+        domain.validate();
+
+        VariableManager variableManager;
+        variableManager.push(":init");
+        BOOST_FOREACH(Expression e, status)
+        {
+            domain.validate(e, variableManager);
+        }
+        variableManager.pop();
+
+        variableManager.push(":goal");
+        BOOST_FOREACH(Expression e, goals)
+        {
+            domain.validate(e, variableManager);
+        }
+        variableManager.pop();
+
+    } catch(const std::runtime_error& e)
+    {
+        throw std::runtime_error("pddl_planner::representation::Problem::validate:\nSyntax error: '" + std::string(e.what()) + "\nData:\n" + toLISP());
+    }
 }
 
 std::string Problem::toLISP() const

@@ -8,6 +8,7 @@
 #include <limits>
 #include <stdexcept>
 #include <cstdarg>
+#include <stack>
 
 namespace pddl_planner {
 namespace representation {
@@ -51,9 +52,15 @@ typedef TypedItemList ParameterList;
 class VariableManager
 {
     std::vector<std::string> mKnownVariables;
+    std::vector<Label> mOperatorStack;
 
 public:
     VariableManager(const ArgumentList& arguments = ArgumentList());
+
+    void push(const Label& label);
+    Label pop();
+
+    std::string currentOperatorStack() const;
 
     /*
      * Create a variable name, i.e. a string prefixed with ?
