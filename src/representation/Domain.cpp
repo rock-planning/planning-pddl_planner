@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <base/Logging.hpp>
 
 namespace pddl_planner {
 namespace representation {
@@ -31,6 +32,100 @@ std::string Expression::toLISP() const
     }
     txt += ")";
     return txt;
+}
+
+VariableManager::VariableManager(const ArgumentList& arguments)
+{
+    BOOST_FOREACH(TypedItem t, arguments)
+    {
+        registerVariable(t.label);
+    }
+}
+
+std::string VariableManager::canonize(const std::string& name)
+{
+    // make sure a valid variable is passed
+    if( !isVariable(name) )
+    {
+        return "?" + name;
+    } else {
+        return name;
+    }
+}
+
+bool VariableManager::isVariable(const std::string& name)
+{
+    return !name.empty() && name.data()[0] == '?';
+}
+
+void VariableManager::registerVariable(const std::string& name)
+{
+    mKnownVariables.push_back( canonize(name) );
+}
+
+bool VariableManager::isKnownVariable(const std::string& name) const
+{
+    return mKnownVariables.end() != std::find(mKnownVariables.begin(), mKnownVariables.end(), canonize(name) );
+}
+
+bool VariableManager::hasTypedVariable(const TypedItemList& list, const TypedItem& item) const
+{
+    TypedItemList::const_iterator cit = list.begin();
+    for(; cit != list.end(); ++cit)
+    {
+        if(cit->label == canonize(item.label))
+        {
+            if(cit->type != item.type)
+            {
+                throw std::runtime_error("pddl_planner::representation::Variable exist but with different type: '" + cit->type  + "' while trying to add: '" + item.type);
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void VariableManager::addTypedVariable(TypedItemList& list, const TypedItem& item)
+{
+    list.push_back( TypedItem( canonize(item.label), item.type ) );
+}
+
+void Action::addArgument(const TypedItem& arg)
+{
+    VariableManager::addTypedVariable(arguments, arg);
+}
+
+bool Action::isArgument(const Label& label)
+{
+    BOOST_FOREACH(TypedItem t, arguments)
+    {
+        if(t.label == label)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ArityValidator::isQuantifier(const Label& label) const
+{
+    if(label == "forall" || label == "exists")
+    {
+        return true;
+    }
+    return false;
+}
+
+bool ArityValidator::isOperator(const Label& label) const
+{
+    return mArityMap.count(label);
+}
+
+Domain::Domain(const std::string& name)
+    : name(name)
+{
+    addRequirement("typing");
 }
 
 void Domain::addType(const Type& type)
@@ -69,7 +164,12 @@ void Domain::addPredicate(const Predicate& predicate, bool overwrite)
 
 void Domain::addRequirement(const Requirement& requirement)
 {
-    requirements.push_back(requirement);
+    if(!isRequirement(requirement))
+    {
+        requirements.push_back(requirement);
+    } else {
+        LOG_INFO_S << "Requirement: '" << requirement << "' already exists";
+    }
 }
 
 void Domain::addAction(const Action& action, bool overwrite)
@@ -177,6 +277,30 @@ bool Domain::isAction(const Label& label) const
     return false;
 }
 
+Predicate Domain::getPredicate(const Label& label) const
+{
+    BOOST_FOREACH(Predicate p, predicates)
+    {
+        if(p.label == label)
+        {
+            return p;
+        }
+    }
+    throw std::runtime_error("pddl_planner::representation::Domain::getPredicate: predicate '" + label + "' could not be found");
+}
+
+Action Domain::getAction(const Label& label) const
+{
+    BOOST_FOREACH(Action a, actions)
+    {
+        if(a.label == label)
+        {
+            return a;
+        }
+    }
+    throw std::runtime_error("pddl_planner::representation::Domain::getAction: action '" + label + "' could not be found");
+}
+
 std::string Domain::toLISP() const
 {
     std::stringstream ss;
@@ -247,7 +371,7 @@ std::string Domain::toLISP() const
         {
             ss << "    (:action " << a.label << std::endl;
 
-            ss << "        (:parameters";
+            ss << "        :parameters (";
             BOOST_FOREACH(TypedItem arg, a.arguments)
             {
                 ss << " " << arg.label << " - " << arg.type;
@@ -256,24 +380,23 @@ std::string Domain::toLISP() const
 
             if(!a.preconditions.empty())
             {
-                ss << "        (:precondition";
+                ss << "        :precondition";
                 BOOST_FOREACH(Expression e, a.preconditions)
                 {
                     ss << " " << e.toLISP();
                 }
-                ss << ")" << std::endl;
+                ss << std::endl;
             }
 
             if(!a.effects.empty())
             {
-                ss << "        (:effect";
+                ss << "        :effect";
                 BOOST_FOREACH(Expression e, a.effects)
                 {
                     ss <<  " " << e.toLISP();
                 }
-                ss << ")" << std::endl;
             }
-            ss << "    )" << std::endl;
+            ss << std::endl << "    )" << std::endl;
         }
     }
 
@@ -281,6 +404,77 @@ std::string Domain::toLISP() const
     ss << ")" << std::endl;
 
     return ss.str();
+}
+
+void Domain::validate(const Expression& e, const VariableManager& variableManager) const
+{
+    ArityValidator operatorValidator;
+
+    if(e.isAtomic())
+    {
+        LOG_DEBUG_S << "Validating atomic statement: '" << e.label << "'";
+        if(! (isConstant(e.label) || isType(e.label) || variableManager.isKnownVariable(e.label)))
+        {
+            throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' is neither registered constant nor type nor local variable");
+        }
+    } else if( isPredicate(e.label) )
+    {
+        LOG_DEBUG_S << "Validating predicate: '" << e.label << "'";
+        Predicate p = getPredicate(e.label);
+        BOOST_FOREACH(Expression* ePtr, e.parameters)
+        {
+            validate(*ePtr, variableManager);
+        }
+    } else if( isAction(e.label))
+    {
+        LOG_DEBUG_S << "Validating action: '" << e.label << "'";
+        Action a = getAction(e.label);
+        BOOST_FOREACH(Expression* ePtr, e.parameters)
+        {
+            validate(*ePtr, variableManager);
+        }
+    } else if( operatorValidator.isQuantifier(e.label) )
+    {
+        // TODO: support here to validate free and bound variables
+        LOG_DEBUG_S << "Validation of quantifier '" << e.label << "' unsupported, i.e. defaulting to true";
+    } else if( operatorValidator.isOperator(e.label) )
+    {
+        LOG_DEBUG_S << "Validating operator: '" << e.label << "'";
+        BOOST_FOREACH(Expression* ePtr, e.parameters)
+        {
+            validate(*ePtr, variableManager);
+        }
+    } else {
+        LOG_DEBUG_S << "validating expression '" << e.label << "' failed -- seems to be neither constant, predicate, action or known variable";
+        throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' cannot be validate since its neither atomic, a predicate or action or a known variable");
+    }
+}
+
+void Domain::validate() const
+{
+    if(isNull())
+    {
+        throw std::runtime_error("pddl_planner::representation::Domain::validate domain is empty");
+    }
+
+    BOOST_FOREACH(Action action, actions)
+    {
+        LOG_DEBUG_S << "Validating action: " << action.label;
+
+        VariableManager variableManager(action.arguments);
+
+        BOOST_FOREACH(Expression e, action.preconditions)
+        {
+            LOG_DEBUG_S << "Validating precondition: " << e.label;
+            validate(e, variableManager);
+        }
+
+        BOOST_FOREACH(Expression e, action.effects)
+        {
+            LOG_DEBUG_S << "Validating effect: " << e.label;
+            validate(e, variableManager);
+        }
+    }
 }
 
 } // end namespace pddl_planner

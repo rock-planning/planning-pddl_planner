@@ -34,6 +34,7 @@ struct TypedItem
     {}
 
     bool undefined() const { return label.empty() || type.empty(); }
+
 };
 
 typedef TypedItem Constant;
@@ -42,6 +43,45 @@ typedef std::vector<TypedItem> TypedItemList;
 typedef TypedItemList ConstantList;
 typedef TypedItemList ArgumentList;
 typedef TypedItemList ParameterList;
+
+
+/**
+ * Manage variable, i.e. for PDDL description these variables start with a quotation mark
+ */
+class VariableManager
+{
+    std::vector<std::string> mKnownVariables;
+
+public:
+    VariableManager(const ArgumentList& arguments = ArgumentList());
+
+    /*
+     * Create a variable name, i.e. a string prefixed with ?
+     */
+    static std::string canonize(const std::string& name);
+
+    /*
+     * Test if the given name indicates a variable (possibly unregistered though)
+     */
+    static bool isVariable(const std::string& name);
+
+    void registerVariable(const std::string& name);
+    bool isKnownVariable(const std::string& name) const;
+
+    /**
+     * Check whether the provided item already exists in the list
+     * \throws if the types of the existing item and the item for testing differ, though 
+     * the labels are the same
+     */
+    bool hasTypedVariable(const TypedItemList& list, const TypedItem& item) const;
+
+    /**
+     * Add a typed variable to a list
+     * This makes sure that the label provided in TypedItem is a variable
+     */
+    static void addTypedVariable(TypedItemList& list, const TypedItem& item);
+};
+
 
 struct Predicate
 {
@@ -58,17 +98,17 @@ struct Predicate
     {
         if(!arg0.undefined())
         {
-            arguments.push_back(arg0);
+            VariableManager::addTypedVariable(arguments, arg0);
         }
 
         if(!arg1.undefined())
         {
-            arguments.push_back(arg1);
+            VariableManager::addTypedVariable(arguments, arg1);
         }
 
         if(!arg2.undefined())
         {
-            arguments.push_back(arg2);
+            VariableManager::addTypedVariable(arguments, arg2);
         }
 
     }
@@ -108,15 +148,15 @@ typedef std::map<Label, Arity> ArityMap;
 
 class ArityValidator
 {
-    ArityMap arityMap;
+    ArityMap mArityMap;
 
 public:
-    ArityValidator(const PredicateList& predicates)
+    ArityValidator(const PredicateList& predicates = PredicateList())
     {
         PredicateList::const_iterator cit = predicates.begin();
         for(; cit != predicates.end(); ++cit)
         {
-            arityMap[cit->label] = Arity::exact( cit->arguments.size() );
+            mArityMap[cit->label] = Arity::exact( cit->arguments.size() );
         }
 
         addDefaults();
@@ -124,18 +164,22 @@ public:
 
     void addDefaults()
     {
-        arityMap["and"]  = Arity::min(2);
-        arityMap["or"]   = Arity::min(2);
-        arityMap["not"]  = Arity::exact(1);
-        arityMap["="]    = Arity::exact(2);
-        arityMap["when"] = Arity::min(1);
-        arityMap["forall"] = Arity::min(2);
+        mArityMap["and"]  = Arity::min(2);
+        mArityMap["or"]   = Arity::min(2);
+        mArityMap["not"]  = Arity::exact(1);
+        mArityMap["="]    = Arity::exact(2);
+        mArityMap["when"] = Arity::min(1);
+        mArityMap["forall"] = Arity::min(2);
     }
+
+    bool isOperator(const Label& label) const;
+
+    bool isQuantifier(const Label& label) const;
 
     void validate(const Label& label, uint8_t arity)
     {
-        ArityMap::const_iterator cit = arityMap.find(label);
-        if(cit == arityMap.end())
+        ArityMap::const_iterator cit = mArityMap.find(label);
+        if(cit == mArityMap.end())
         {
             throw std::invalid_argument("pddl_planner::representation::ArityValidator: unknown predicate or operator: '" + label + "'");
         }
@@ -233,6 +277,7 @@ struct Expression
 
     std::string toLISP() const;
 };
+
 typedef std::vector<Expression> ExpressionList;
 
 struct Action
@@ -247,22 +292,27 @@ struct Action
         , arguments(arguments)
     {}
 
-    Action(const Label& label, const TypedItem& arg0 = TypedItem(), const TypedItem& arg1 = TypedItem(), const TypedItem& arg2 = TypedItem())
+    Action(const Label& label, const TypedItem& arg0 = TypedItem(), const TypedItem& arg1 = TypedItem(), const TypedItem& arg2 = TypedItem(), const TypedItem& arg3 = TypedItem())
         : label(label)
     {
         if(!arg0.undefined())
         {
-            arguments.push_back(arg0);
+            addArgument(arg0);
         }
 
         if(!arg1.undefined())
         {
-            arguments.push_back(arg1);
+            addArgument(arg1);
         }
 
         if(!arg2.undefined())
         {
-            arguments.push_back(arg2);
+            addArgument(arg2);
+        }
+
+        if(!arg3.undefined())
+        {
+            addArgument(arg3);
         }
     }
 
@@ -274,9 +324,20 @@ struct Action
     {
         effects.push_back(e);
     }
+
+    void addArgument(const TypedItem& arg);
+
+    bool isArgument(const Label& label);
 };
 typedef std::vector<Action> ActionList;
 
+/**
+ * \brief An internal representation of a PDDL domain description
+ * \details This class allows to programmatically build a PDDL domain description and
+ * allow to export the current state in LISP format
+ *
+ * Currently, the domain requires 'typing' support by default 
+ */
 struct Domain
 {
     std::string name;
@@ -286,10 +347,7 @@ struct Domain
     RequirementList requirements;
     ActionList actions;
 
-    Domain() {}
-    Domain(const std::string& name)
-        : name(name)
-    {}
+    Domain(const std::string& name = "");
 
     void addType(const Type& type);
     void addConstant(const TypedItem& type, bool overwrite = false);
@@ -307,7 +365,20 @@ struct Domain
     bool isRequirement(const Requirement& requirement) const;
     bool isAction(const Label& label) const;
 
+    Predicate getPredicate(const Label& label) const;
+    Action getAction(const Label& label) const;
+
     std::string toLISP() const;
+
+    bool isNull() const { return name.empty(); }
+
+    void validate(const Expression& e, const VariableManager& variableManager = VariableManager()) const;
+
+    /**
+     * Perform a simple syntax check
+     * \throw std::runtime_error if syntax has errors
+     */
+    void validate() const;
 };
 
 } // end namespace representation
