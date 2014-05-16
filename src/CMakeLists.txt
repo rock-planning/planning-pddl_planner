@@ -4,11 +4,13 @@ rock_library(pddl_planner
     SOURCES PDDLPlanner.cpp
         planners/Lama.cpp
         representation/Domain.cpp
+        representation/Problem.cpp
     HEADERS PDDLPlanner.hpp 
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp
         representation/Domain.hpp
+        representation/Problem.hpp
     DEPS_PKGCONFIG base-types
         base-lib
     DEPS_CMAKE Boost
