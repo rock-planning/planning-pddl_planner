@@ -1,11 +1,11 @@
 find_package(Boost REQUIRED filesystem system)
 
 rock_library(pddl_planner
-    SOURCES PDDLPlanner.cpp
+    SOURCES Planning.cpp
         planners/Lama.cpp
         representation/Domain.cpp
         representation/Problem.cpp
-    HEADERS PDDLPlanner.hpp 
+    HEADERS Planning.hpp
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp

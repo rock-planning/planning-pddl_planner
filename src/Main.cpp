@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <map>
 #include <errno.h>
-#include <pddl_planner/PDDLPlanner.hpp>
-#include <pddl_planner/planners/Lama.hpp>
+#include <pddl_planner/Planning.hpp>
 
 void usage(int argc, char** argv)
 {
@@ -13,12 +12,6 @@ void usage(int argc, char** argv)
 int main(int argc, char** argv)
 {
     using namespace pddl_planner;
-
-    std::map<std::string, PDDLPlannerInterface*> knownPlanners;
-    lama::Planner lamaPlanner;
-    knownPlanners[lamaPlanner.getName()] = &lamaPlanner;
-
-    PDDLPlannerInterface* planner = NULL;
 
     // defaultPlanner is LAMA
     if(argc < 2 )
@@ -51,16 +44,6 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    std::map<std::string, PDDLPlannerInterface*>::iterator it = knownPlanners.find(plannerName);
-    if(it != knownPlanners.end())
-    {
-        planner = it->second;
-    } else {
-        printf("Could not find a planner: '%s'\n", plannerName.c_str());
-        exit(-1);
-    }
-
-    PDDLPlanner pddlPlanner(planner);
     FILE* domainFile = fopen(domainFilename.c_str(),"r"); 
     if(!domainFile)
     {
@@ -77,7 +60,8 @@ int main(int argc, char** argv)
     }
     fclose(domainFile);
 
-    pddlPlanner.setDomainDescription("test-domain", domainDescription);
+    Planning planning;
+    planning.setDomainDescription("test-domain", domainDescription);
 
     FILE* problemFile = fopen(problemFilename.c_str(), "r");
     if(!problemFile)
@@ -94,7 +78,7 @@ int main(int argc, char** argv)
     fclose(problemFile);
 
 try {
-    PlanCandidates planCandidates = pddlPlanner.plan(problemDescription);
+    PlanCandidates planCandidates = planning.plan(problemDescription);
     printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
 } catch(const std::runtime_error& e)
 {

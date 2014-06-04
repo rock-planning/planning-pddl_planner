@@ -282,11 +282,19 @@ struct Expression
 
     bool isNull() const { return label.empty(); }
 
+    /**
+     * Convert expression to LISP representation
+     * \return LISP expression
+     */
     std::string toLISP() const;
 };
 
 typedef std::vector<Expression> ExpressionList;
 
+/**
+ * An action defined in a domain consists of an identifier (label) and a list of arguments. 
+ * To allow for propery planning preconditions and effects are provided
+ */
 struct Action
 {
     Label label;
@@ -294,11 +302,24 @@ struct Action
     ExpressionList preconditions;
     ExpressionList effects;
 
+    /**
+     * Constructor supporting an arbitrary number of arguments
+     * \param label Label (identifier) of the action
+     * \param arguments List of arguments for this action
+     */
     Action(const Label& label, const ArgumentList& arguments)
         : label(label)
         , arguments(arguments)
     {}
 
+    /**
+     * Constructor supporting up to four arguments
+     * \param label Label (identifier) of the action
+     * \param arg0 (optional) argument
+     * \param arg1 (optional) argument
+     * \param arg2 (optional) argument
+     * \param arg3 (optional) argument
+     */
     Action(const Label& label, const TypedItem& arg0 = TypedItem(), const TypedItem& arg1 = TypedItem(), const TypedItem& arg2 = TypedItem(), const TypedItem& arg3 = TypedItem())
         : label(label)
     {
@@ -323,17 +344,35 @@ struct Action
         }
     }
 
+    /**
+     * Add precondition to action
+     * \param e Expression defining a precondition
+     */
     void addPrecondition(const Expression& e)
     {
         preconditions.push_back(e);
     }
+
+    /**
+     * Add effect to action
+     * \param e Expression defining an effect of this action
+     */
     void addEffect(const Expression& e)
     {
         effects.push_back(e);
     }
 
+    /**
+     * Append an argument to this action's list of arguments, i.e.
+     * the order in which arguments are added does matter
+     * \param arg Expression defin
+     */
     void addArgument(const TypedItem& arg);
 
+    /**
+     * Test whether a given label corresponds to an argument of this action
+     * \return true if label matches an existing argument of this action, false if not
+     */
     bool isArgument(const Label& label);
 };
 typedef std::vector<Action> ActionList;
@@ -347,16 +386,31 @@ typedef std::vector<Action> ActionList;
  */
 struct Domain
 {
+    // Domain name
     std::string name;
+    // List of types of this domain
     TypeList types;
+    // List of constants in this domain
     ConstantList constants;
+    // List of predicates in this domain
     PredicateList predicates;
+    // List of requirements for using this domain description, e.g. 'strips' or 'typing'
     RequirementList requirements;
+    // List of actions in this domain
     ActionList actions;
 
+    /**
+     * Default domain constructor
+     * \param name Name of the domain
+     */
     Domain(const std::string& name = "");
 
+    /**
+     * Add a domain type
+     * \param type Type definition
+     */
     void addType(const Type& type);
+
     void addConstant(const TypedItem& type, bool overwrite = false);
     void addPredicate(const Predicate& predicate, bool overwrite = false);
     void addRequirement(const Requirement& requirement);
@@ -377,13 +431,27 @@ struct Domain
 
     std::string toLISP() const;
 
-    bool isNull() const { return name.empty(); }
+    /**
+     * Check if domain has a name
+     * \return true if name is given, false otherwise
+     */
+    bool hasName() const { return !name.empty(); }
 
+    /**
+     * Check if a properly named domain definition is given
+     * \return true if domain is defined, false otherwise
+     */
+    bool isNull() const { return !hasName(); }
+
+    /**
+     * Validate an expression using a given variable manager
+     * \throw std::runtime_error if expression is not properly defined
+     */
     void validate(const Expression& e, const VariableManager& variableManager = VariableManager()) const;
 
     /**
      * Perform a simple syntax check
-     * \throw std::runtime_error if syntax has errors
+     * \throw std::runtime_error if expression is not properly defined
      */
     void validate() const;
 };
