@@ -59,7 +59,7 @@ Label VariableManager::pop()
     return label;
 }
 
-std::string VariableManager::currentOperatorStack() const
+std::string VariableManager::getOperatorStackAsString() const
 {
     std::string txt;
     BOOST_FOREACH(Label l, mOperatorStack)
@@ -135,6 +135,27 @@ bool Action::isArgument(const Label& label)
     return false;
 }
 
+ArityValidator::ArityValidator(const PredicateList& predicates)
+{
+    PredicateList::const_iterator cit = predicates.begin();
+    for(; cit != predicates.end(); ++cit)
+    {
+        mArityMap[cit->label] = Arity::exact( cit->arguments.size() );
+    }
+
+    addDefaults();
+}
+
+void ArityValidator::addDefaults()
+{
+    mArityMap["and"]  = Arity::min(2);
+    mArityMap["or"]   = Arity::min(2);
+    mArityMap["not"]  = Arity::exact(1);
+    mArityMap["="]    = Arity::exact(2);
+    mArityMap["when"] = Arity::min(1);
+    mArityMap["forall"] = Arity::min(2);
+}
+
 bool ArityValidator::isQuantifier(const Label& label) const
 {
     if(label == "forall" || label == "exists")
@@ -147,6 +168,26 @@ bool ArityValidator::isQuantifier(const Label& label) const
 bool ArityValidator::isOperator(const Label& label) const
 {
     return mArityMap.count(label);
+}
+
+
+void ArityValidator::validate(const Label& label, uint8_t arity)
+{
+    ArityMap::const_iterator cit = mArityMap.find(label);
+    if(cit == mArityMap.end())
+    {
+        throw std::invalid_argument("pddl_planner::representation::ArityValidator: unknown predicate or operator: '" + label + "'");
+    }
+
+    Arity allowedArity = cit->second;
+
+    if(arity < allowedArity.getMin())
+    {
+        throw std::invalid_argument("pddl_planner::representation::ArityValidator predicate or operator: '" + label + "' provided with too few parameters");
+    } else if(arity > allowedArity.getMax())
+    {
+        throw std::invalid_argument("pddl_planner::representation::ArityValidator predicate or operator: '" + label + "' provided with too many parameters");
+    }
 }
 
 Domain::Domain(const std::string& name)
@@ -442,7 +483,7 @@ void Domain::validate(const Expression& e, const VariableManager& variableManage
         LOG_DEBUG_S << "Validating atomic statement: '" << e.label << "'";
         if(! (isConstant(e.label) || isType(e.label) || variableManager.isKnownVariable(e.label)))
         {
-            throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.currentOperatorStack() + "' is not a registered constant, type or local variable");
+            throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.getOperatorStackAsString() + "' is not a registered constant, type or local variable");
         }
     } else if( isPredicate(e.label) )
     {
@@ -473,7 +514,7 @@ void Domain::validate(const Expression& e, const VariableManager& variableManage
         }
     } else {
         LOG_DEBUG_S << "expression '" << e.label << "' is not a known constant, predicate, action or variable";
-        throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.currentOperatorStack() + "' is neither a known constant, predicate, action or variable");
+        throw std::runtime_error("pddl_planner::representation::Domain::validateExpression '" + e.label + "' in '" + variableManager.getOperatorStackAsString() + "' is neither a known constant, predicate, action or variable");
     }
 }
 

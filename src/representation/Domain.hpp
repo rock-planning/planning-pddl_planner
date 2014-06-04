@@ -21,6 +21,10 @@ typedef std::string Requirement;
 typedef std::vector<Type> TypeList;
 typedef std::vector<Requirement> RequirementList;
 
+/**
+ * \class TypedItem
+ * \brief A tuple representation providing a name/label and a type
+ */
 struct TypedItem
 {
     Label label;
@@ -47,7 +51,8 @@ typedef TypedItemList ParameterList;
 
 
 /**
- * Manage variable, i.e. for PDDL description these variables start with a quotation mark
+ * \class VariableManager
+ * \brief Manage variable, i.e. for PDDL description these variables start with a quotation mark
  */
 class VariableManager
 {
@@ -60,19 +65,41 @@ public:
     void push(const Label& label);
     Label pop();
 
-    std::string currentOperatorStack() const;
+    /**
+     * Get operator stack as list
+     * \return list of operators, latest operator at the end of the list
+     */
+    std::vector<Label> getOperatorStack() const { return mOperatorStack; }
+
+    /**
+     * Get the operator stack as string for debugging purposes
+     * \return list of operators
+     */
+    std::string getOperatorStackAsString() const;
 
     /*
      * Create a variable name, i.e. a string prefixed with ?
+     * \return canonized string of given name
      */
     static std::string canonize(const std::string& name);
 
     /*
-     * Test if the given name indicates a variable (possibly unregistered though)
+     * Test if the given name indicates a variable (currently indicated by starting with ?)
+     * \return true if name is a variable, false otherwise
      */
     static bool isVariable(const std::string& name);
 
+    /**
+     * Register variable by name
+     * \param name Name of variable
+     */
     void registerVariable(const std::string& name);
+
+    /**
+     * Test is variable is known / registered
+     * \param name Name of variable
+     * \return True is variable is known, false otherwise
+     */
     bool isKnownVariable(const std::string& name) const;
 
     /**
@@ -89,7 +116,11 @@ public:
     static void addTypedVariable(TypedItemList& list, const TypedItem& item);
 };
 
-
+/**
+ * \struct Predicate
+ * \brief Representation of a predicate
+ * \details A predicate is defined by the label and associated arguments
+ */
 struct Predicate
 {
     Label label;
@@ -122,12 +153,19 @@ struct Predicate
 };
 typedef std::vector<Predicate> PredicateList;
 
+/**
+ * \class Arity
+ * \brief Arity represents the arity of operations allowing to define exact, minimum and maximum arity
+ */
 class Arity
 {
     uint8_t mMin;
     uint8_t mMax;
 
 public:
+    /**
+     * Default constructor
+     */
     Arity()
         : mMin( std::numeric_limits<uint8_t>::min() )
         , mMax( std::numeric_limits<uint8_t>::max() )
@@ -143,71 +181,85 @@ public:
         }
     }
 
+    /**
+     * Get minimum arity
+     * \return arity
+     */
     uint8_t getMin() const { return mMin; }
+
+    /**
+     * Get maximum arity
+     * \return arity
+     */
     uint8_t getMax() const { return mMax; }
 
+    /**
+     * Create an Arity object by defining the exact arity
+     * \param n
+     * \return arity
+     */
     static Arity exact(uint8_t n) { return Arity(n,n); }
+
+    /**
+     * Create an Arity object by defining minimum arity
+     * \param n
+     * \return arity
+     */
     static Arity min(uint8_t n) { return Arity(n,std::numeric_limits<uint8_t>::max()); }
+
+    /**
+     * Create an Arity object by defining maximum arity
+     * \param n
+     * \return arity
+     */
     static Arity max(uint8_t n) { return Arity(std::numeric_limits<uint8_t>::min(),n); }
 };
 
 typedef std::map<Label, Arity> ArityMap;
 
+/**
+ * \class ArityValidator
+ * \brief Class to validate usage of operations against argument requirements
+ */
 class ArityValidator
 {
     ArityMap mArityMap;
 
+    /**
+     * Add default operations and quantifiers
+     */
+    void addDefaults();
+
 public:
-    ArityValidator(const PredicateList& predicates = PredicateList())
-    {
-        PredicateList::const_iterator cit = predicates.begin();
-        for(; cit != predicates.end(); ++cit)
-        {
-            mArityMap[cit->label] = Arity::exact( cit->arguments.size() );
-        }
+    ArityValidator(const PredicateList& predicates = PredicateList());
 
-        addDefaults();
-    }
-
-    void addDefaults()
-    {
-        mArityMap["and"]  = Arity::min(2);
-        mArityMap["or"]   = Arity::min(2);
-        mArityMap["not"]  = Arity::exact(1);
-        mArityMap["="]    = Arity::exact(2);
-        mArityMap["when"] = Arity::min(1);
-        mArityMap["forall"] = Arity::min(2);
-    }
-
+    /**
+     * Test if label represents an operator
+     * \return true if label represents an operator, false otherwise
+     */
     bool isOperator(const Label& label) const;
 
+    /**
+     * Test is label represents a quantifier
+     * \return true if label represents a quantifier, false otherwise
+     */
     bool isQuantifier(const Label& label) const;
 
-    void validate(const Label& label, uint8_t arity)
-    {
-        ArityMap::const_iterator cit = mArityMap.find(label);
-        if(cit == mArityMap.end())
-        {
-            throw std::invalid_argument("pddl_planner::representation::ArityValidator: unknown predicate or operator: '" + label + "'");
-        }
-
-        Arity allowedArity = cit->second;
-
-        if(arity < allowedArity.getMin()) 
-        {
-            throw std::invalid_argument("pddl_planner::representation::ArityValidator predicate or operator: '" + label + "' provided with too few parameters");
-        } else if(arity > allowedArity.getMax())
-        {
-            throw std::invalid_argument("pddl_planner::representation::ArityValidator predicate or operator: '" + label + "' provided with too many parameters");
-        }
-    }
+    /**
+     * Validate arity of given operation or quantifier
+     * \param label Identifier of operation or quantifier (or action)
+     * \throw std::invalid_argument if arity is not correct for the given
+     */
+    void validate(const Label& label, uint8_t arity);
 };
 
 
 class Expression;
 typedef std::vector<Expression*> ExpressionPtrList;
 /**
- * Expression are needed to handle addition of actions, e.g., as part of preconditions or effect
+ * \class Expression
+ * \brief Representation of (LISP) expressions
+ * \details Expression are needed to handle addition of actions, e.g., as part of preconditions or effect
  */
 struct Expression
 {
