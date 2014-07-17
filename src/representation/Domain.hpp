@@ -254,85 +254,42 @@ public:
 };
 
 
+enum Quantor { UNKNOWN_QUANTOR, FORALL, EXISTS };
+extern std::map<Quantor,std::string> QuantorTxt;
+
 class Expression;
 typedef std::vector<Expression*> ExpressionPtrList;
 /**
  * \class Expression
  * \brief Representation of (LISP) expressions
- * \details Expression are needed to handle addition of actions, e.g., as part of preconditions or effect
+ * \details Expression are needed to handle addition of actions, e.g., as part of preconditions or effects
  */
 struct Expression
 {
     Label label;
     ExpressionPtrList parameters;
 
-    Expression(const Label& label = "")
-        : label(label)
-    {}
+    // For quantor expression
+    TypedItem typedItem;
 
+    Expression(const Label& label = "");
     Expression(const Expression& other);
+    virtual ~Expression();
 
-    ~Expression()
-    {
-        ExpressionPtrList::iterator it = parameters.begin();
-        for(; it != parameters.end(); ++it)
-        {
-            delete *it;
-            *it = NULL;
-        }
-    }
+    Expression(const Label& label, const Expression& arg0, const Expression& arg1 = Expression(), const Expression& arg2 = Expression(), const Expression& arg3 = Expression(), const Expression& arg4 = Expression(), const Expression& arg5 = Expression(), const Expression& arg6 = Expression(), const Expression& arg7 = Expression(), const Expression& arg8 = Expression(), const Expression& arg9 = Expression(), const Expression& arg10 = Expression());
 
-    Expression(const Label& label, const Expression& arg0, const Expression& arg1 = Expression(), const Expression& arg2 = Expression())
-        : label(label)
-    {
-        if(!arg0.isNull())
-        {
-            addParameter(arg0);
-        }
+    Expression(const Label& label, const Label& arg0, const Label& arg1 = "", const Label& arg2 = "");
 
-        if(!arg1.isNull())
-        {
-            addParameter(arg1);
-        }
+    Expression(Quantor quantor, const TypedItem& typedItem, const Expression& e);
 
-        if(!arg2.isNull())
-        {
-            addParameter(arg2);
-        }
-    }
-
-    Expression(const Label& label, const Label& arg0, const Label& arg1 = "", const Label& arg2 = "")
-        : label(label)
-    {
-        if(!arg0.empty())
-        {
-            addParameter(arg0);
-        }
-
-        if(!arg1.empty())
-        {
-            addParameter(arg1);
-        }
-
-        if(!arg2.empty())
-        {
-            addParameter(arg2);
-        }
-    }
-
-    void addParameter(const Label& e)
-    {
-        parameters.push_back( new Expression(e) );
-    }
-
-    void addParameter(const Expression& e)
-    {
-        parameters.push_back( new Expression(e) );
-    }
+    void addParameter(const Label& e);
+    void addParameter(const Expression& e);
 
     bool isAtomic() const { return parameters.empty(); }
 
     bool isNull() const { return label.empty(); }
+
+    static bool isQuantor(const Label& label);
 
     /**
      * Convert expression to LISP representation

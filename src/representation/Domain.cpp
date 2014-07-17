@@ -2,14 +2,26 @@
 #include <algorithm>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <boost/assign/list_of.hpp>
 #include <base/Logging.hpp>
 
 namespace pddl_planner {
 namespace representation {
 
+Expression::Expression(const Label& label)
+    : label(label)
+{
+    if(isQuantor(label))
+    {
+        throw std::invalid_argument("pddl_planner::representation::Expression: quantor expression should use quantor related constructor");
+    }
+}
+
 Expression::Expression(const Expression& other)
 {
     label = other.label;
+    typedItem = other.typedItem;
+
     {
         BOOST_FOREACH(Expression* e, other.parameters)
         {
@@ -18,11 +30,150 @@ Expression::Expression(const Expression& other)
     }
 }
 
+Expression::~Expression()
+{
+    ExpressionPtrList::iterator it = parameters.begin();
+    for(; it != parameters.end(); ++it)
+    {
+        delete *it;
+        *it = NULL;
+    }
+}
+
+Expression::Expression(const Label& label, const Expression& arg0, const Expression& arg1, const Expression& arg2, const Expression& arg3, const Expression& arg4, const Expression& arg5, const Expression& arg6, const Expression& arg7, const Expression& arg8, const Expression& arg9, const Expression& arg10)
+    : label(label)
+{
+    if(isQuantor(label))
+    {
+        throw std::invalid_argument("pddl_planner::representation::Expression: quantor expression should use quantor related constructor");
+    }
+
+    if(!arg0.isNull())
+    {
+        addParameter(arg0);
+    }
+
+    if(!arg1.isNull())
+    {
+        addParameter(arg1);
+    }
+
+    if(!arg2.isNull())
+    {
+        addParameter(arg2);
+    }
+
+    if(!arg3.isNull())
+    {
+        addParameter(arg3);
+    }
+
+    if(!arg4.isNull())
+    {
+        addParameter(arg4);
+    }
+
+    if(!arg5.isNull())
+    {
+        addParameter(arg5);
+    }
+
+    if(!arg6.isNull())
+    {
+        addParameter(arg6);
+    }
+
+    if(!arg7.isNull())
+    {
+        addParameter(arg7);
+    }
+
+    if(!arg8.isNull())
+    {
+        addParameter(arg8);
+    }
+
+    if(!arg9.isNull())
+    {
+        addParameter(arg9);
+    }
+
+    if(!arg10.isNull())
+    {
+        addParameter(arg10);
+    }
+}
+
+Expression::Expression(const Label& label, const Label& arg0, const Label& arg1, const Label& arg2)
+    : label(label)
+{
+    if(isQuantor(label))
+    {
+        throw std::invalid_argument("pddl_planner::representation::Expression: quantor expression should use quantor related constructor");
+    }
+
+    if(!arg0.empty())
+    {
+        addParameter(arg0);
+    }
+
+    if(!arg1.empty())
+    {
+        addParameter(arg1);
+    }
+
+    if(!arg2.empty())
+    {
+        addParameter(arg2);
+    }
+}
+
+Expression::Expression(Quantor quantor, const TypedItem& typedItem, const Expression& e)
+    : typedItem(typedItem)
+{
+    label = QuantorTxt[quantor];
+
+    if(!e.isNull())
+    {
+        addParameter(e);
+    } else {
+        throw std::runtime_error("pddl_planner::representation::Expression: quantor expects expression");
+    }
+}
+
+void Expression::addParameter(const Label& e)
+{
+    parameters.push_back( new Expression(e) );
+}
+
+void Expression::addParameter(const Expression& e)
+{
+    parameters.push_back( new Expression(e) );
+}
+
+std::map<Quantor, std::string> QuantorTxt = boost::assign::map_list_of
+    (FORALL, "forall")
+    (EXISTS, "exists");
+
 std::string Expression::toLISP() const
 {
     if(isAtomic())
     {
         return label;
+    }
+
+    if(isQuantor(label))
+    {
+        std::string txt = "(" + label + " (";
+        txt += typedItem.label + " - " + typedItem.type + " ";
+        txt += ")";
+
+        BOOST_FOREACH(Expression* e, parameters)
+        {
+            txt += " " + e->toLISP();
+        }
+        txt += ")";
+        return txt;
     }
 
     std::string txt = "(" + label;
@@ -32,6 +183,19 @@ std::string Expression::toLISP() const
     }
     txt += ")";
     return txt;
+}
+
+bool Expression::isQuantor(const Label& label)
+{
+    std::map<Quantor, std::string>::const_iterator cit = QuantorTxt.begin();
+    for(; cit != QuantorTxt.end(); ++cit)
+    {
+        if(cit->second == label)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 VariableManager::VariableManager(const ArgumentList& arguments)

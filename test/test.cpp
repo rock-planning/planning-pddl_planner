@@ -31,6 +31,28 @@ BOOST_AUTO_TEST_CASE(main_lama_test)
     }
 }
 
+BOOST_AUTO_TEST_CASE(expression_test)
+{
+    using namespace pddl_planner;
+    using namespace pddl_planner::representation;
+
+    Expression andExpr("and","?a","?b");
+    Expression notExpr("not", andExpr);
+    BOOST_REQUIRE_MESSAGE(andExpr.toLISP() == "(and ?a ?b)", andExpr.toLISP());
+    BOOST_REQUIRE_MESSAGE(notExpr.toLISP() == "(not (and ?a ?b))", notExpr.toLISP());
+
+    Expression quantorExpression(EXISTS,TypedItem("?l","location"),
+            Expression("and", 
+                Expression("at","sherpa","?l"),
+                Expression("at","crex","?l"))
+            );
+    BOOST_REQUIRE_MESSAGE(quantorExpression.toLISP() == "(exists (?l - location ) (and (at sherpa ?l) (at crex ?l)))", quantorExpression.toLISP());
+    Expression notQuantorExpression("not", quantorExpression);
+
+    BOOST_REQUIRE_MESSAGE(notQuantorExpression.toLISP() == "(not (exists (?l - location ) (and (at sherpa ?l) (at crex ?l))))", notQuantorExpression.toLISP());
+}
+
+
 BOOST_AUTO_TEST_CASE(domain_test)
 {
     using namespace pddl_planner;
@@ -60,10 +82,6 @@ BOOST_AUTO_TEST_CASE(domain_test)
     domain.addPredicate( Predicate("connected", TypedItem("?x","physob_id"),TypedItem("?y","physob_id")) ) ;
     domain.addPredicate( Predicate("cannot_move", TypedItem("?x","physob_id")) );
 
-    Expression andExpr("and","?a","?b");
-    Expression notExpr("not", andExpr);
-    BOOST_REQUIRE_MESSAGE(andExpr.toLISP() == "(and ?a ?b)", andExpr.toLISP());
-    BOOST_REQUIRE_MESSAGE(notExpr.toLISP() == "(not (and ?a ?b))", notExpr.toLISP());
 
     // Action move
     representation::Action move("move", TypedItem("?obj","physob_id"), TypedItem("?m","location"), TypedItem("?l","location"));
@@ -71,7 +89,7 @@ BOOST_AUTO_TEST_CASE(domain_test)
         Expression precondition("and", Expression("at", "?obj", "?m"), Expression("not", Expression("=", "?m", "?l")), Expression("not", Expression("cannot_move","?obj")));
 
 
-        Expression effect("and", Expression("at","?obj","?l"), Expression("not", Expression("at","?obj","?m")), Expression("forall", Expression("?z"), Expression("when", Expression("and", Expression("connected","?z","?obj"), Expression("not", Expression("=","?z","?obj"))), Expression("and", Expression("at","?z","?l"), Expression("not", Expression("at","?z","?m"))))));
+        Expression effect("and", Expression("at","?obj","?l"), Expression("not", Expression("at","?obj","?m")), Expression(FORALL, TypedItem("?z","physob_type"), Expression("when", Expression("and", Expression("connected","?z","?obj"), Expression("not", Expression("=","?z","?obj"))), Expression("and", Expression("at","?z","?l"), Expression("not", Expression("at","?z","?m"))))));
 
         move.addPrecondition(precondition);
         move.addEffect(effect);
