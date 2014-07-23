@@ -12,8 +12,7 @@ Problem::Problem(const std::string& name, const Domain& domain)
 
 void Problem::addObject(const TypedItem& object, bool overwrite)
 {
-    //objects.push_back( object );
-    domain.addConstant(object, overwrite);
+    objects.push_back( object );
 }
 
 void Problem::addInitialStatus(const Expression& e)
