@@ -17,12 +17,15 @@ void Problem::addObject(const TypedItem& object, bool overwrite)
 
 void Problem::addInitialStatus(const Expression& e)
 {
-    if(!domain.isPredicate(e.label))
+    ExpressionList::iterator cit = status.begin();
+    for(; cit != status.end(); ++cit)
     {
-        throw std::invalid_argument("pddl_planner::representation::Domain::addInitialStatus constant '" + e.label + "' already exists");
-    } else {
-        status.push_back(e);
+        if(e == *cit)
+        {
+            throw std::invalid_argument("pddl_planner::representation::Domain::addInitialStatus expression '" + e.toLISP() + "' already exists");
+        }
     }
+    status.push_back(e);
 }
 
 void Problem::addGoal(const Expression& e)

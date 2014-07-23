@@ -40,6 +40,9 @@ struct TypedItem
 
     bool undefined() const { return label.empty() || type.empty(); }
 
+    bool operator!=(const TypedItem& other) const { return ! operator==(other); }
+    bool operator==(const TypedItem& other) const { return label == other.label && type == other.type; }
+
 };
 
 typedef TypedItem Constant;
@@ -294,6 +297,12 @@ struct Expression
     bool isNull() const { return label.empty(); }
 
     static bool isQuantor(const Label& label);
+
+    /**
+     * Equals operator
+     * \return true if two expressions are equivalent, false otherwise
+     */
+    bool operator==(const Expression& other) const;
 
     /**
      * Convert expression to LISP representation

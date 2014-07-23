@@ -198,6 +198,39 @@ bool Expression::isQuantor(const Label& label)
     return false;
 }
 
+bool Expression::operator==(const Expression& other) const
+{
+    if(label != other.label && typedItem != other.typedItem)
+    {
+        return false;
+    }
+
+    if(parameters.size() != other.parameters.size())
+    {
+        return false;
+    }
+
+    ExpressionPtrList::const_iterator pit = parameters.begin();
+    for(;pit != parameters.end(); ++pit)
+    {
+        bool found = false;
+        ExpressionPtrList::const_iterator oit = other.parameters.begin();
+        for(; oit != other.parameters.end(); ++oit)
+        {
+            if(*pit == *oit)
+            {
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 VariableManager::VariableManager(const ArgumentList& arguments)
 {
     BOOST_FOREACH(TypedItem t, arguments)
