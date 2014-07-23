@@ -25,6 +25,8 @@ struct Problem
 
     /**
      * Add an expression defining the initial status
+     * \param e Expression describing the initial status
+     * \throws std::invalid_argument When validation fails for expression in the given context
      */
     void addInitialStatus(const Expression& e);
 
