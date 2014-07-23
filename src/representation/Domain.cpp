@@ -576,27 +576,27 @@ std::string Domain::toLISP() const
     ss << "(define (domain " << name << ")" << std::endl;
     if(!requirements.empty())
     {
-        ss << "    (:requirements";
+        ss << "    (:requirements" << std::endl;
         BOOST_FOREACH(Requirement r, requirements)
         {
-            ss << " :" << r;
+            ss << "        :" << r << std::endl;
         }
-        ss << "    )" << std::endl;
+        ss << "    ); end requirements" << std::endl;
     }
 
     if(!types.empty())
     {
-        ss << "    (:types";
+        ss << "    (:types" << std::endl;
         BOOST_FOREACH(Type t, types)
         {
-            ss << " " << t;
+            ss << "        " << t << std::endl;
         }
-        ss << ")" << std::endl;
+        ss << "    ); end types" << std::endl;
     }
 
     if(!constants.empty())
     {
-        ss << "    (:constants " << std::endl;
+        ss << "    (:constants" << std::endl;
         BOOST_FOREACH(Type t, types)
         {
             std::stringstream constantLine;
@@ -604,16 +604,16 @@ std::string Domain::toLISP() const
             {
                 if(c.type == t)
                 {
-                    constantLine << " " << c.label;
+                    constantLine << "        " << c.label << std::endl;
                 }
             }
             if(constantLine.str() != "")
             {
-                ss << "        " << constantLine.str();
-                ss << " - " << t << std::endl;
+                ss << constantLine.str();
+                ss << "            - " << t << std::endl;
             }
         }
-        ss << "    )" << std::endl;
+        ss << "    ); end constants" << std::endl;
     }
 
     if(!predicates.empty())
@@ -628,9 +628,9 @@ std::string Domain::toLISP() const
             {
                 ss << " " << arg.label << " - " << arg.type;
             }
-            ss << ")" << std::endl;
+            ss << " )" << std::endl;
         }
-        ss << "    )" << std::endl;
+        ss << "    ); end predicates" << std::endl;
     }
 
     if(!functions.empty())
@@ -643,7 +643,7 @@ std::string Domain::toLISP() const
             {
                 ss << " " << arg.label << " - " << arg.type;
             }
-            ss << ")" << std::endl;
+            ss << " )" << std::endl;
 
         }
         ss << "    )" << std::endl;
@@ -660,7 +660,7 @@ std::string Domain::toLISP() const
             {
                 ss << " " << arg.label << " - " << arg.type;
             }
-            ss << ")" << std::endl;
+            ss << " )" << std::endl;
 
             if(!a.preconditions.empty())
             {
