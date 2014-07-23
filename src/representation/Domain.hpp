@@ -153,6 +153,10 @@ struct Predicate
 };
 typedef std::vector<Predicate> PredicateList;
 
+// Function has same structure as a predicate
+typedef Predicate Function;
+typedef std::vector<Function> FunctionList;
+
 /**
  * \class Arity
  * \brief Arity represents the arity of operations allowing to define exact, minimum and maximum arity
@@ -407,6 +411,8 @@ struct Domain
     RequirementList requirements;
     // List of actions in this domain
     ActionList actions;
+    // List of functions in this domain
+    FunctionList functions;
 
     /**
      * Default domain constructor
@@ -424,16 +430,19 @@ struct Domain
     void addPredicate(const Predicate& predicate, bool overwrite = false);
     void addRequirement(const Requirement& requirement);
     void addAction(const Action& action, bool overwrite = false);
+    void addFunction(const Function& function, bool overwrite = false);
 
     void removeConstant(const Label& label);
     void removePredicate(const Label& label);
     void removeAction(const Label& label);
+    void removeFunction(const Label& label);
 
     bool isType(const Type& type) const;
     bool isConstant(const Label& label) const;
     bool isPredicate(const Label& label) const;
     bool isRequirement(const Requirement& requirement) const;
     bool isAction(const Label& label) const;
+    bool isFunction(const Label& label) const;
 
     Predicate getPredicate(const Label& label) const;
     Action getAction(const Label& label) const;

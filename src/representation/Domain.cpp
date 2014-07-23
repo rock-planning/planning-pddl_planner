@@ -416,6 +416,17 @@ void Domain::addAction(const Action& action, bool overwrite)
     actions.push_back(action);
 }
 
+void Domain::addFunction(const Function& function, bool overwrite)
+{
+    if(isFunction(function.label) && !overwrite)
+    {
+        throw std::invalid_argument("pddl_planner::representation::Domain::addFunction function '" + function.label + "' already exists");
+    } else {
+        removeFunction(function.label);
+    }
+    functions.push_back(function);
+}
+
 void Domain::removeConstant(const Label& label)
 {
     ConstantList::iterator cit = constants.begin();
@@ -448,6 +459,18 @@ void Domain::removeAction(const Label& label)
         if(cit->label == label)
         {
             actions.erase(cit);
+        }
+    }
+}
+
+void Domain::removeFunction(const Label& label)
+{
+    FunctionList::iterator cit = functions.begin();
+    for(; cit != functions.end(); ++cit)
+    {
+        if(cit->label == label)
+        {
+            functions.erase(cit);
         }
     }
 }
@@ -500,6 +523,19 @@ bool Domain::isAction(const Label& label) const
 {
     ActionList::const_iterator cit = actions.begin();
     for(; cit != actions.end(); ++cit)
+    {
+        if(cit->label == label)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Domain::isFunction(const Label& label) const
+{
+    FunctionList::const_iterator cit = functions.begin();
+    for(; cit != functions.end(); ++cit)
     {
         if(cit->label == label)
         {
@@ -597,6 +633,22 @@ std::string Domain::toLISP() const
         ss << "    )" << std::endl;
     }
 
+    if(!functions.empty())
+    {
+        ss << "    (:functions " << std::endl;
+        BOOST_FOREACH(Function f, functions)
+        {
+            ss << "        ( " << f.label;
+            BOOST_FOREACH(TypedItem arg, f.arguments)
+            {
+                ss << " " << arg.label << " - " << arg.type;
+            }
+            ss << ")" << std::endl;
+
+        }
+        ss << "    )" << std::endl;
+    }
+
     if(!actions.empty())
     {
         BOOST_FOREACH(Action a, actions)
@@ -631,7 +683,6 @@ std::string Domain::toLISP() const
             ss << std::endl << "    )" << std::endl;
         }
     }
-
     ss << "; END domain definition" << std::endl;
     ss << ")" << std::endl;
 
