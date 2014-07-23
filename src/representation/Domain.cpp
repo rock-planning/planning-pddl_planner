@@ -387,7 +387,7 @@ void Domain::addPredicate(const Predicate& predicate, bool overwrite)
 {
     if(isPredicate(predicate.label) && !overwrite)
     {
-        throw std::invalid_argument("pddl_planner::representation::Domain::addConstant predicate '" + predicate.label + "' already exists");
+        throw std::invalid_argument("pddl_planner::representation::Domain::addPredicate predicate '" + predicate.label + "' already exists");
     } else {
         removePredicate(predicate.label);
     }
@@ -408,7 +408,7 @@ void Domain::addAction(const Action& action, bool overwrite)
 {
     if(isAction(action.label) && !overwrite)
     {
-        throw std::invalid_argument("pddl_planner::representation::Domain::addConstant predicate '" + action.label + "' already exists");
+        throw std::invalid_argument("pddl_planner::representation::Domain::addAction action '" + action.label + "' already exists");
     } else {
         removeAction(action.label);
     }
