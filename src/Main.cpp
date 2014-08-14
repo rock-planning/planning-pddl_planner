@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     fclose(problemFile);
 
 try {
-    PlanCandidates planCandidates = planning.plan(problemDescription);
+    PlanCandidates planCandidates = planning.plan(problemDescription, plannerName);
     printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
 } catch(const std::runtime_error& e)
 {

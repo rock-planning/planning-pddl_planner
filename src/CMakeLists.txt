@@ -3,12 +3,14 @@ find_package(Boost REQUIRED filesystem system)
 rock_library(pddl_planner
     SOURCES Planning.cpp
         planners/Lama.cpp
+        planners/Tfd.cpp
         representation/Domain.cpp
         representation/Problem.cpp
     HEADERS Planning.hpp
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp
+        planners/Tfd.hpp
         representation/Domain.hpp
         representation/Problem.hpp
     DEPS_PKGCONFIG base-types

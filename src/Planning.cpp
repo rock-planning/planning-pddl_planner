@@ -1,6 +1,7 @@
 #include <pddl_planner/Planning.hpp>
 #include <pddl_planner/PDDLPlannerInterface.hpp>
 #include <pddl_planner/planners/Lama.hpp>
+#include <pddl_planner/planners/Tfd.hpp>
 #include <boost/assign/list_of.hpp>
 
 namespace pddl_planner
@@ -9,7 +10,8 @@ namespace pddl_planner
 Planning::Planning()
 {
     mPlanners = boost::assign::map_list_of
-        ("LAMA", new pddl_planner::lama::Planner());
+        ("LAMA", (pddl_planner::PDDLPlannerInterface*) new pddl_planner::lama::Planner())
+        ("TFD",  (pddl_planner::PDDLPlannerInterface*) new pddl_planner::tfd::Planner());
 }
 
 Planning::~Planning()

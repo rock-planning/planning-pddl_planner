@@ -6,7 +6,6 @@
 
 BOOST_AUTO_TEST_CASE(main_lama_test)
 {
-
     using namespace pddl_planner;
     Planning planning;
 
@@ -20,7 +19,7 @@ BOOST_AUTO_TEST_CASE(main_lama_test)
         std::string problemDescription = "(define (problem rimres-1)\n (:domain rimres)\n (:objects\n sherpa_0 crex_0 pl_0 - physob_id\n location_s0 location_c0 location_p0 - location\n mission1 - location\n)\n (:init \n (is_a sherpa_0 sherpa)\n (is_a crex_0 crex)\n (is_a pl_0 payload)\n (at sherpa_0 location_s0)\n (at crex_0 location_c0)\n (at pl_0 location_p0)\n (cannot_move pl_0)\n)\n (:goal (and \n (connected sherpa_0 crex_0) \n (connected sherpa_0 pl_0)\n (at sherpa_0 mission1)\n)\n)\n)\n";
         BOOST_TEST_MESSAGE( "Domain description \n" << problemDescription );
 
-        PlanCandidates planCandidates = planning.plan(problemDescription);
+        PlanCandidates planCandidates = planning.plan(problemDescription, "LAMA");
     
         printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
         BOOST_ASSERT(planCandidates.plans.size() == 2);
