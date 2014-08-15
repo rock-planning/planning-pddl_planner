@@ -2,6 +2,7 @@ find_package(Boost REQUIRED filesystem system)
 
 rock_library(pddl_planner
     SOURCES Planning.cpp
+        planners/AbstractPlanner.cpp
         planners/Lama.cpp
         planners/Tfd.cpp
         representation/Domain.cpp
@@ -9,6 +10,7 @@ rock_library(pddl_planner
     HEADERS Planning.hpp
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
+        planners/AbstractPlanner.hpp
         planners/Lama.hpp
         planners/Tfd.hpp
         representation/Domain.hpp
