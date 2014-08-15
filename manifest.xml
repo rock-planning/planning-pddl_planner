@@ -9,4 +9,5 @@
   <logo>http://</logo>
   <depend package="base/types" />
   <depend package="planning/lama" />
+  <depend package="planning/tfd" />
 </package>
