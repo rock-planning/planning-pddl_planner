@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_TFD_HPP
 #define PDDL_PLANNER_TFD_HPP
 
-#include <pddl_planner/PDDLPlannerInterface.hpp>
+#include <pddl_planner/planners/AbstractPlanner.hpp>
 
 namespace pddl_planner
 {
@@ -11,54 +11,19 @@ namespace tfd
      * Implement the interface to the TFD planner
      *
      */
-    class Planner : public PDDLPlannerInterface
+    class Planner : public AbstractPlanner
     {
     public:
-        std::string getName() const { return "TFD"; }
+        virtual std::string getName() const { return "TFD"; }
 
-        int getVersion() const { return 1; }
-
-        /**
-         * Create plan candidates for the given pddl planning problem
-         */
-        PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
+        virtual int getVersion() const { return 1; }
 
     private:
-        /**
-         *
-         */
-        void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
-
-        /**
-         * Read a plani
-         * Note, that an empty plan is a valid plan
-         * \throws PlanGenerationException
-         */
-        Plan readPlan(const std::string& filename);
 
         /**
          * Remove temporary files and cleanup after plan generation
          */
-        void cleanup();
-
-        /**
-         * Generate the plan candidates for the given problem
-         * There is no priority in the order of candidates
-         * \throws PlanGenerationException
-         */
-        PlanCandidates generatePlanCandidates();
-
-        std::string mTempDir; 
-        std::string mDomainFilename;
-        std::string mProblemFilename;
-        std::string mResultFilename;
-
-        const static std::string msResultFileBasename;
-        const static std::string msProblemFileBasename;
-        const static std::string msDomainFileBasename;
-        const static std::string msTempDirBasename;
-
-        Plan mPlan;
+        virtual void cleanup();
     };
 } 
 }

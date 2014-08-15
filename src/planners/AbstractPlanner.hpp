@@ -25,6 +25,19 @@ namespace pddl_planner
          * Create plan candidates for the given pddl planning problem
          */
         PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
+        
+    protected:
+        std::string mTempDir; 
+        std::string mDomainFilename;
+        std::string mProblemFilename;
+        std::string mResultFilename;
+
+        const static std::string msResultFileBasename;
+        const static std::string msProblemFileBasename;
+        const static std::string msDomainFileBasename;
+        const static std::string msTempDirBasename;
+
+        Plan mPlan;
 
     private:
         /**
@@ -50,18 +63,6 @@ namespace pddl_planner
          * \throws PlanGenerationException
          */
         PlanCandidates generatePlanCandidates();
-
-        std::string mTempDir; 
-        std::string mDomainFilename;
-        std::string mProblemFilename;
-        std::string mResultFilename;
-
-        const static std::string msResultFileBasename;
-        const static std::string msProblemFileBasename;
-        const static std::string msDomainFileBasename;
-        const static std::string msTempDirBasename;
-
-        Plan mPlan;
     };
 } 
 
