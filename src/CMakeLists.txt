@@ -5,12 +5,14 @@ rock_library(pddl_planner
         planners/Lama.cpp
         representation/Domain.cpp
         representation/Problem.cpp
+        representation/grammar/lisp/Expression.cpp
     HEADERS Planning.hpp
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp
         representation/Domain.hpp
         representation/Problem.hpp
+        representation/grammar/lisp/Expression.hpp
     DEPS_PKGCONFIG base-types
         base-lib
     DEPS_CMAKE Boost

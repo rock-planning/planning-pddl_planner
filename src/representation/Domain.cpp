@@ -4,6 +4,7 @@
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 #include <base/Logging.hpp>
+#include "grammar/lisp/Expression.hpp"
 
 namespace pddl_planner {
 namespace representation {
@@ -183,6 +184,25 @@ std::string Expression::toLISP() const
     }
     txt += ")";
     return txt;
+}
+
+Expression Expression::fromString(const std::string& expressionString)
+{
+    typedef grammar::lisp::Expression<std::string::const_iterator, qi::space_type> lisp_expression_grammar;
+    lisp_expression_grammar grammar;
+    Expression expression;
+
+    std::string::const_iterator iter = expressionString.begin();
+    std::string::const_iterator end = expressionString.end();
+
+    bool r = phrase_parse(iter, end, grammar, qi::space, expression);
+    if(r && iter == end)
+    {
+        return expression;
+    }
+
+    throw std::invalid_argument("pddl_planner::representation::Expression::fromString: \
+            given string could not be parsed");
 }
 
 bool Expression::isQuantor(const Label& label)

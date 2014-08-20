@@ -107,7 +107,7 @@ public:
 
     /**
      * Check whether the provided item already exists in the list
-     * \throws if the types of the existing item and the item for testing differ, though 
+     * \throws if the types of the existing item and the item for testing differ, though
      * the labels are the same
      */
     bool hasTypedVariable(const TypedItemList& list, const TypedItem& item) const;
@@ -289,6 +289,9 @@ struct Expression
 
     Expression(Quantor quantor, const TypedItem& typedItem, const Expression& e);
 
+    /**
+     * Add a parameter to this expression -- this parameter is a simple label, but no expression
+     */
     void addParameter(const Label& e);
     void addParameter(const Expression& e);
 
@@ -309,12 +312,18 @@ struct Expression
      * \return LISP expression
      */
     std::string toLISP() const;
+
+    /**
+     * Get and expression from a given string
+     * \return Expression
+     */
+    static Expression fromString(const std::string& expressionString);
 };
 
 typedef std::vector<Expression> ExpressionList;
 
 /**
- * An action defined in a domain consists of an identifier (label) and a list of arguments. 
+ * An action defined in a domain consists of an identifier (label) and a list of arguments.
  * To allow for propery planning preconditions and effects are provided
  */
 struct Action
@@ -404,7 +413,7 @@ typedef std::vector<Action> ActionList;
  * \details This class allows to programmatically build a PDDL domain description and
  * allow to export the current state in LISP format
  *
- * Currently, the domain requires 'typing' support by default 
+ * Currently, the domain requires 'typing' support by default
  */
 struct Domain
 {
