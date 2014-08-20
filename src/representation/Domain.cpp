@@ -205,8 +205,8 @@ Expression Expression::fromString(const std::string& expressionString)
         return expression;
     }
 
-    throw std::invalid_argument("pddl_planner::representation::Expression::fromString: \
-            given string could not be parsed");
+    throw std::invalid_argument("pddl_planner::representation::Expression::fromString: '" +\
+            expressionString + "' is not a valid expression");
 }
 
 bool Expression::isQuantor(const Label& label)
