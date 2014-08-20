@@ -36,20 +36,25 @@ void Problem::addGoal(const Expression& e)
 void Problem::validate() const
 {
     try {
-        domain.validate();
+        Domain tmpDomain = domain;
+        tmpDomain.validate();
+        BOOST_FOREACH(Constant constant, objects)
+        {
+            tmpDomain.addConstant(constant, true);
+        }
 
         VariableManager variableManager;
         variableManager.push(":init");
         BOOST_FOREACH(Expression e, status)
         {
-            domain.validate(e, variableManager);
+            tmpDomain.validate(e, variableManager);
         }
         variableManager.pop();
 
         variableManager.push(":goal");
         BOOST_FOREACH(Expression e, goals)
         {
-            domain.validate(e, variableManager);
+            tmpDomain.validate(e, variableManager);
         }
         variableManager.pop();
 
