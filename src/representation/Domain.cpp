@@ -20,15 +20,7 @@ Expression::Expression(const Label& label)
 
 Expression::Expression(const Expression& other)
 {
-    label = other.label;
-    typedItem = other.typedItem;
-
-    {
-        BOOST_FOREACH(Expression* e, other.parameters)
-        {
-            parameters.push_back(new Expression(*e));
-        }
-    }
+    *this = other;
 }
 
 Expression::~Expression()
@@ -220,6 +212,23 @@ bool Expression::isQuantor(const Label& label)
         }
     }
     return false;
+}
+
+Expression& Expression::operator=(const Expression& other)
+{
+    if( this != &other)
+    {
+        label = other.label;
+        typedItem = other.typedItem;
+
+        {
+            BOOST_FOREACH(Expression* e, other.parameters)
+            {
+                addParameter(*e);
+            }
+        }
+    }
+    return *this;
 }
 
 bool Expression::operator==(const Expression& other) const

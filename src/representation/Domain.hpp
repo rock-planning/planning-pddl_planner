@@ -302,6 +302,11 @@ struct Expression
     static bool isQuantor(const Label& label);
 
     /**
+     * Assign operator
+     */
+    Expression& operator=(const Expression& other);
+
+    /**
      * Equals operator
      * \return true if two expressions are equivalent, false otherwise
      */
