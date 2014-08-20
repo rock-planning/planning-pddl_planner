@@ -166,7 +166,11 @@ std::string Expression::toLISP() const
     if(isQuantor(label))
     {
         std::string txt = "(" + label + " (";
-        txt += typedItem.label + " - " + typedItem.type + " ";
+        txt += typedItem.label;
+        if(!typedItem.type.empty())
+        {
+            txt += " - " + typedItem.type;
+        }
         txt += ")";
 
         BOOST_FOREACH(Expression* e, parameters)
