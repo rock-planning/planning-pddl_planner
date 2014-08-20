@@ -130,7 +130,6 @@ BOOST_AUTO_TEST_CASE(domain_test)
     BOOST_TEST_MESSAGE( domain.toLISP() );
     BOOST_REQUIRE_NO_THROW( domain.validate() );
 
-
     representation::Problem problem("rimres-1",domain);
     problem.addObject( Constant("sherpa_0","physob_id"));
     problem.addObject( Constant("crex_0","physob_id"));
@@ -139,6 +138,7 @@ BOOST_AUTO_TEST_CASE(domain_test)
     problem.addObject( Constant("location_c0","location"));
     problem.addObject( Constant("location_p0","location"));
     problem.addObject( Constant("mission1","location"));
+    BOOST_TEST_MESSAGE("Added objects");
 
     problem.addInitialStatus( Expression("is_a","sherpa_0","sherpa") );
     problem.addInitialStatus( Expression("is_a","crex_0","crex") );
@@ -147,10 +147,13 @@ BOOST_AUTO_TEST_CASE(domain_test)
     problem.addInitialStatus( Expression("at","crex_0","location_c0") );
     problem.addInitialStatus( Expression("at","pl_0","location_p0") );
     problem.addInitialStatus( Expression("cannot_move", "pl_0") );
+    BOOST_TEST_MESSAGE("Added initial status");
 
-    problem.addGoal( Expression("connected","sherpa_0","crex_0"));
-    problem.addGoal( Expression("connected","sherpa_0","pl_0"));
-    problem.addGoal( Expression("at","sherpa_0","mission1"));
+    Expression subgoal0("connected","sherpa_0","crex_0");
+    Expression subgoal1("connected","sherpa_0","pl_0");
+    Expression subgoal2("at","sherpa_0","mission1");
+    Expression goal("and", subgoal0, subgoal1, subgoal2);
+    problem.setGoal(goal);
 
     BOOST_TEST_MESSAGE( problem.toLISP() );
     BOOST_TEST_MESSAGE( problem.domain.toLISP() );
@@ -162,7 +165,8 @@ BOOST_AUTO_TEST_CASE(domain_test)
     BOOST_TEST_MESSAGE( "PlanCandidates:\n" << planCandidates.toString());
     BOOST_ASSERT(planCandidates.plans.size() == 2);
 
-    problem.addGoal( Expression("a","sherpa_0","mission1"));
+    problem.goal.addParameter(Expression("a","sherpa_0","mission1"));
+
     try {
         problem.validate();
         BOOST_REQUIRE_MESSAGE(false, "Validation expected to throw, but did not");

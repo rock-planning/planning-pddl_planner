@@ -28,9 +28,9 @@ void Problem::addInitialStatus(const Expression& e)
     status.push_back(e);
 }
 
-void Problem::addGoal(const Expression& e)
+void Problem::setGoal(const Expression& e)
 {
-    goals.push_back(e);
+    goal = e;
 }
 
 void Problem::validate() const
@@ -52,9 +52,9 @@ void Problem::validate() const
         variableManager.pop();
 
         variableManager.push(":goal");
-        BOOST_FOREACH(Expression e, goals)
+        BOOST_FOREACH(const Expression* e, goal.parameters)
         {
-            tmpDomain.validate(e, variableManager);
+            tmpDomain.validate(*e, variableManager);
         }
         variableManager.pop();
 
@@ -90,20 +90,10 @@ std::string Problem::toLISP() const
         ss << "    )" << std::endl;
     }
 
-    if(!goals.empty())
+    if(!goal.isNull())
     {
         ss << "    (:goal ";
-        if(goals.size() == 1)
-        {
-            ss << goals.front().toLISP() << std::endl;
-        } else {
-            ss << "(and";
-            BOOST_FOREACH(Expression e, goals)
-            {
-                ss << " " << e.toLISP();
-            }
-            ss << ")";
-        }
+        ss << goal.toLISP();
         ss << ")" << std::endl;
     }
 

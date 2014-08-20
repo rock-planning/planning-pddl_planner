@@ -123,9 +123,10 @@
    problem.addInitialStatus( Expression("at","pl_0","location_p0") );
    problem.addInitialStatus( Expression("cannot_move", "pl_0") );
 
-   problem.addGoal( Expression("connected","sherpa_0","crex_0"));
-   problem.addGoal( Expression("connected","sherpa_0","pl_0"));
-   problem.addGoal( Expression("at","sherpa_0","mission1"));
+   Expression subgoal0("connected","sherpa_0","crex_0");
+   Expression subgoal1("connected","sherpa_0","pl_0");
+   Expression subgoal2("at","sherpa_0","mission1");
+   problem.setGoal(Expression("and", subgoal0, subgoal1, subgoal2));
 
    Planning planning;
    PlanCandidates planCandidates = planning.plan(problem);

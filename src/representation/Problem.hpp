@@ -13,7 +13,7 @@ struct Problem
     ConstantList objects;
 
     ExpressionList status;
-    ExpressionList goals;
+    Expression goal;
 
     Problem(const std::string& name, const Domain& domain);
 
@@ -30,16 +30,22 @@ struct Problem
      */
     void addInitialStatus(const Expression& e);
 
+
     /**
-     * Add a goal expression -- conjunction will be built for all added goals
+     * Set the goal expression
      */
-    void addGoal(const Expression& e);
+    void setGoal(const Expression& e);
+
+    /**
+     * Add a sub goal expression to the existing top level one
+     */
+    void addSubGoal(const Expression& e);
 
     /**
      * Test if problem has been fully defined, i.e. that goals and a domain are set
      * \return true if goals and a domain are provided, false otherwise
      */
-    bool undefined() const { return goals.empty() || domain.isNull(); }
+    bool undefined() const { return goal.isNull() || domain.isNull(); }
 
     /**
      * Perform simple syntax check
