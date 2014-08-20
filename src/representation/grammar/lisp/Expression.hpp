@@ -5,6 +5,7 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 
 //#define BOOST_SPIRIT_DEBUG
@@ -236,6 +237,19 @@ struct Expression : qi::grammar<Iterator, pddl_planner::representation::Expressi
     qi::rule<Iterator, pddl_planner::representation::Expression(), Skipper> expression;
     qi::rule<Iterator, pddl_planner::representation::Expression(), Skipper> simple_expression;
     qi::rule<Iterator, pddl_planner::representation::Expression(), qi::locals< pddl_planner::representation::TypedItem>, Skipper > quantifier_expression;
+};
+
+template<typename Iterator, typename Skipper = qi::space_type>
+struct ExpressionList : qi::grammar<Iterator, pddl_planner::representation::ExpressionList(), Skipper>
+{
+    ExpressionList() : ExpressionList::base_type(expression_list_rule, "ExpressionList-lisp_grammar")
+    {
+        expression_list_rule = +expression [ phoenix::push_back(label::_val) = label::_1 ];
+        GRAMMAR_DEBUG_RULE(expression_list_rule);
+    }
+
+    qi::rule<Iterator, ExpressionList(), Skipper> expression_list_rule;
+    Expression<Iterator, Skipper> expression;
 };
 
 } // end namespace lips
