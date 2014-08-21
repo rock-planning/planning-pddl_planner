@@ -106,4 +106,10 @@ PlanCandidates Planning::plan(const representation::Problem& problem, const std:
     return plan(problem.toLISP(), planner_name);
 }
 
+PlanCandidates Planning::plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& planner_name)
+{
+    setDomainDescription(domain.name, domain.toLISP());
+    return plan(problem.toLISP(), planner_name);
+}
+
 }

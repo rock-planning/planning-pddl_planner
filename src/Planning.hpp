@@ -230,6 +230,11 @@ namespace pddl_planner
          */
         PlanCandidates plan(const representation::Problem& problem, const std::string& planner = "LAMA");
 
+        /**
+         * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
+         */
+        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& planner = "LAMA");
+
     private: 
         ActionDescriptions mActionDescriptions;
         DomainDescriptions mDomainDescriptions;
