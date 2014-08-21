@@ -2,6 +2,7 @@
 #include <pddl_planner/PDDLPlannerInterface.hpp>
 #include <pddl_planner/planners/Lama.hpp>
 #include <boost/assign/list_of.hpp>
+#include <base/Logging.hpp>
 
 namespace pddl_planner
 {
@@ -96,6 +97,10 @@ std::string Planning::getDomainDescriptions() const
 
 PlanCandidates Planning::plan(const std::string& problem, const std::string& planner_name)
 {
+    LOG_DEBUG_S << "Planning requested: " << std::endl
+        << "-DOMAIN-" << std::endl << getDomainDescriptions()
+        << "-PROBLEM-" << std::endl << problem;
+
     PDDLPlannerInterface* planner = getPlanner(planner_name);
     return planner->plan(problem, getActionDescriptions(), getDomainDescriptions());
 }
