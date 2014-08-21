@@ -147,7 +147,7 @@ struct Label : qi::grammar<Iterator, std::string()>
 {
     Label() : Label::base_type(label_rule, "Label-lisp_grammar")
     {
-        label_rule = + (qi::alnum | encoding::char_("-_")) | binary_operator | binary_comparison;
+        label_rule = qi::alnum >> +(qi::alnum | encoding::char_("+-_[]")) | binary_operator | binary_comparison;
         GRAMMAR_DEBUG_RULE(label_rule);
     }
 
