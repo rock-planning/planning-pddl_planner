@@ -36,10 +36,10 @@ namespace pddl_planner
         Action() 
         {}
 
-        std::string toString()
+        std::string toString() const
         {
             std::string action = name;
-            std::vector<std::string>::iterator it = arguments.begin();
+            std::vector<std::string>::const_iterator it = arguments.begin();
             for(;it != arguments.end(); ++it)
             {
                 action += *it + " ";
@@ -59,10 +59,10 @@ namespace pddl_planner
             action_sequence.push_back(action);
         }
 
-        std::string toString()
+        std::string toString() const
         {
             std::string plan;
-            std::vector<Action>::iterator it = action_sequence.begin();
+            std::vector<Action>::const_iterator it = action_sequence.begin();
             for(;it != action_sequence.end(); ++it)
             {
                 plan += "[" + it->toString() + "]";
@@ -81,10 +81,10 @@ namespace pddl_planner
             plans.push_back(plan);
         }
 
-        std::string toString()
+        std::string toString() const
         {
             std::string candidates;
-            std::vector<Plan>::iterator it = plans.begin();
+            std::vector<Plan>::const_iterator it = plans.begin();
             int index = 0;
             for(;it != plans.end(); ++it)
             {
