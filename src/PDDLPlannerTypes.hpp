@@ -21,32 +21,28 @@ namespace pddl_planner
 
     struct Action
     {
+        // name of action
         std::string name;
+        // arguments of this action
         std::vector<std::string> arguments;
 
-        void addArgument(const std::string& argument)
-        {
-            arguments.push_back(argument);
-        }
+        /**
+         * Default constructor
+         * \param name Name of action
+         */
+        Action(const std::string& name ="");
 
-        Action(const std::string& _name)
-            : name(_name)
-        {}
+        /**
+         * Add an argument to this action
+         * \parram argument Argument
+         */
+        void addArgument(const std::string& argument);
 
-        Action() 
-        {}
-
-        std::string toString() const
-        {
-            std::string action = name;
-            std::vector<std::string>::const_iterator it = arguments.begin();
-            for(;it != arguments.end(); ++it)
-            {
-                action += *it + " ";
-            }
-            boost::algorithm::trim(action);
-            return action;
-        }
+        /**
+         * Create string representation of class
+         * \return string representation
+         */
+        std::string toString() const;
     };
 
     // Plan as a sequence of actions
@@ -54,47 +50,34 @@ namespace pddl_planner
     {
         std::vector<Action> action_sequence;
 
-        void addAction(const Action& action)
-        {
-            action_sequence.push_back(action);
-        }
+        /**
+         * Add an action to the plan
+         * \param action Action
+         */
+        void addAction(const Action& action);
 
-        std::string toString() const
-        {
-            std::string plan;
-            std::vector<Action>::const_iterator it = action_sequence.begin();
-            for(;it != action_sequence.end(); ++it)
-            {
-                plan += "[" + it->toString() + "]";
-            }
-            boost::algorithm::trim(plan);
-            return plan;
-        }
+        /**
+         * Create string representation of class
+         * \return string representation
+         */
+        std::string toString() const;
     };
 
     struct PlanCandidates
     {
         std::vector<Plan> plans;
 
-        void addPlan(const Plan& plan)
-        {
-            plans.push_back(plan);
-        }
+        /**
+         * Add a plan to the list of plan candidates
+         * \param plan Plan candidate
+         */
+        void addPlan(const Plan& plan);
 
-        std::string toString() const
-        {
-            std::string candidates;
-            std::vector<Plan>::const_iterator it = plans.begin();
-            int index = 0;
-            for(;it != plans.end(); ++it)
-            {
-                std::stringstream ss;
-                ss << index++ << "\t" << it->toString() << "\n";
-                candidates += ss.str();
-            }
-            return candidates;
-
-        }
+        /**
+         * Create string representation of class
+         * \return string representation
+         */
+        std::string toString() const;
     };
 
 
