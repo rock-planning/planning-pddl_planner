@@ -222,6 +222,7 @@ Expression& Expression::operator=(const Expression& other)
         typedItem = other.typedItem;
 
         {
+            parameters.clear();
             BOOST_FOREACH(Expression* e, other.parameters)
             {
                 addParameter(*e);

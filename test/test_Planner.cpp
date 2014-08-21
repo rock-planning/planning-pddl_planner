@@ -154,8 +154,13 @@ BOOST_AUTO_TEST_CASE(domain_test)
     Expression subgoal2("at","sherpa_0","mission1");
     Expression goal("and", subgoal0, subgoal1, subgoal2);
     problem.setGoal(goal);
+    std::string goalDescription = "(and (connected sherpa_0 crex_0) (connected sherpa_0 pl_0) (at sherpa_0 mission1))";
+    BOOST_REQUIRE_MESSAGE(goal.toLISP() == goalDescription, "Problem goal: " << problem.toLISP() );
 
-    BOOST_TEST_MESSAGE( problem.toLISP() );
+    Expression goal1 = goal;
+    goal1 = goal;
+    BOOST_REQUIRE_MESSAGE(goal1.toLISP() == goalDescription, "Expression assignment: " << problem.toLISP() );
+
     BOOST_TEST_MESSAGE( problem.domain.toLISP() );
     BOOST_REQUIRE_NO_THROW( problem.validate() );
 
