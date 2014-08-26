@@ -36,9 +36,10 @@ BOOST_AUTO_TEST_CASE(it_should_parse_expression)
     }
 
     { 
-        Expression e = Expression::fromString("(forall (?z - Location) (at robot ?z))");
-        BOOST_REQUIRE_MESSAGE(e.toLISP() == "(forall (?z - Location) (at robot ?z))", "Quantifier expression with typed variable parsed correctly: " << e.toLISP());
+        Expression e = Expression::fromString("(exists (?z - Location) (at robot ?z))");
+        BOOST_REQUIRE_MESSAGE(e.toLISP() == "(exists (?z - Location) (at robot ?z))", "Quantifier expression with typed variable parsed correctly: " << e.toLISP());
     }
+
     {
         Expression e = Expression::fromString("(= (distance location_c0 location_p0) 10)");
         BOOST_REQUIRE_MESSAGE(e.toLISP() == "(= (distance location_c0 location_p0) 10)", "Setting of predicate expression parsed correctly: " << e.toLISP());

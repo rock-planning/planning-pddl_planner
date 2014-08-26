@@ -147,7 +147,7 @@ struct Label : qi::grammar<Iterator, std::string()>
 {
     Label() : Label::base_type(label_rule, "Label-lisp_grammar")
     {
-        label_rule = qi::alnum >> +(qi::alnum | encoding::char_("+-_[]")) | binary_operator | binary_comparison;
+        label_rule = (qi::alnum >> +(qi::alnum | encoding::char_("+-_[]"))) | binary_operator | binary_comparison;
         GRAMMAR_DEBUG_RULE(label_rule);
     }
 
@@ -163,12 +163,11 @@ struct Variable : qi::grammar<Iterator, std::string()>
 {
     Variable() : Variable::base_type(variable_rule, "Variable-lisp_grammar")
     {
-        variable_rule = encoding::string("?") >> label;
+        variable_rule = encoding::string("?") >> +qi::alnum;
         GRAMMAR_DEBUG_RULE(variable_rule);
     }
 
     qi::rule<Iterator, std::string()> variable_rule;
-    Label<Iterator> label;
 };
 
 template<typename Iterator, typename Skipper = qi::space_type>
