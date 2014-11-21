@@ -12,7 +12,7 @@
  * This library provides a somewhat generalized interface for planning and allow to embed a selection of
  * PDDL planners.
  *
- * While by default it include an integration for the LAMA planner, additional planners can be added dynamically
+ * While by default it includes integration for the LAMA planner and the FDSS planners, additional planners can be added dynamically
  * using the pddl_planner::Planning::registerPlanner function.
  *
  * \verbatim
@@ -170,6 +170,8 @@ namespace pddl_planner
          */
         ~Planning();
 
+        
+        PlannerMap getPlanners() { return mPlanners; }
         /**
          * Register an implementation of a pddl planner
          */

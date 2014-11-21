@@ -3,6 +3,7 @@
 #include <map>
 #include <errno.h>
 #include <pddl_planner/Planning.hpp>
+#include <cstring>
 
 void usage(int argc, char** argv)
 {
@@ -12,7 +13,7 @@ void usage(int argc, char** argv)
 int main(int argc, char** argv)
 {
     using namespace pddl_planner;
-
+    
     // defaultPlanner is LAMA
     if(argc < 2 )
     {
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    std::string problemDescription;
+    std::string problemDescription; // = domainDescription; // maybe?!
     while(fgets(buffer, 512, problemFile) != NULL)
     {
         problemDescription += std::string(buffer);
@@ -78,13 +79,23 @@ int main(int argc, char** argv)
     fclose(problemFile);
 
 try {
-    PlanCandidates planCandidates = planning.plan(problemDescription);
+    PlanCandidates planCandidates = planning.plan(problemDescription, plannerName);
     printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
 } catch(const std::runtime_error& e)
 {
     printf("Error: %s\n", e.what());
+    if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
+    {
+        printf("    Available planners:\n");
+        PlannerMap planners = planning.getPlanners();
+        PlannerMap::iterator it = planners.begin();
+        for(; it != planners.end(); ++it)
+        {
+            printf("%s ", it->first.c_str());
+        }        
+        printf("\n");
+    }
 }
-
 
     return 0;
 }

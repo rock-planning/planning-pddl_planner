@@ -1,7 +1,9 @@
 #include <pddl_planner/Planning.hpp>
 #include <pddl_planner/PDDLPlannerInterface.hpp>
 #include <pddl_planner/planners/Lama.hpp>
+#include <pddl_planner/planners/Fast_downward.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/assign.hpp>
 #include <base/Logging.hpp>
 
 namespace pddl_planner
@@ -10,7 +12,13 @@ namespace pddl_planner
 Planning::Planning()
 {
     mPlanners = boost::assign::map_list_of
-        ("LAMA", new pddl_planner::lama::Planner());
+                    ("LAMA", dynamic_cast<pddl_planner::PDDLPlannerInterface*>(new pddl_planner::lama::Planner()))
+                    ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))
+                    ("FDSS2", new pddl_planner::fast_downward::Planner("seq-sat-fdss-2"))
+                    
+                    ("LAMA2011", new pddl_planner::fast_downward::Planner("seq-sat-lama-2011"))
+                    ("FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-2"))
+                    ("FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-1"));
 }
 
 Planning::~Planning()
