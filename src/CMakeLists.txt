@@ -4,6 +4,7 @@ rock_library(pddl_planner
     SOURCES Planning.cpp
         PDDLPlannerTypes.cpp
         planners/Lama.cpp
+        planners/Bfsf.cpp
         planners/Fast_downward.cpp
         representation/Domain.cpp
         representation/Problem.cpp
@@ -12,6 +13,7 @@ rock_library(pddl_planner
         PDDLPlannerInterface.hpp 
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp
+        planners/Bfsf.hpp
         planners/Fast_downward.hpp
         representation/Domain.hpp
         representation/Problem.hpp

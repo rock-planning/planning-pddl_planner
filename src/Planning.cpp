@@ -1,6 +1,7 @@
 #include <pddl_planner/Planning.hpp>
 #include <pddl_planner/PDDLPlannerInterface.hpp>
 #include <pddl_planner/planners/Lama.hpp>
+#include <pddl_planner/planners/Bfsf.hpp>
 #include <pddl_planner/planners/Fast_downward.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/assign.hpp>
@@ -13,6 +14,8 @@ Planning::Planning()
 {
     mPlanners = boost::assign::map_list_of
                     ("LAMA", dynamic_cast<pddl_planner::PDDLPlannerInterface*>(new pddl_planner::lama::Planner()))
+                    ("BFSF", new pddl_planner::bfsf::Planner())
+                    
                     ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))
                     ("FDSS2", new pddl_planner::fast_downward::Planner("seq-sat-fdss-2"))
                     
