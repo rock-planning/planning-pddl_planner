@@ -1,9 +1,10 @@
 #include <pddl_planner/Planning.hpp>
 #include <pddl_planner/PDDLPlannerInterface.hpp>
-#include <pddl_planner/planners/Uniform.hpp>
-#include <pddl_planner/planners/Cedalion.hpp>
 #include <pddl_planner/planners/Lama.hpp>
 #include <pddl_planner/planners/Bfsf.hpp>
+#include <pddl_planner/planners/Uniform.hpp>
+#include <pddl_planner/planners/Cedalion.hpp>
+#include <pddl_planner/planners/ArvandHerd.hpp>
 #include <pddl_planner/planners/FastDownward.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/assign.hpp>
@@ -19,6 +20,7 @@ Planning::Planning()
                     ("BFSF", new pddl_planner::bfsf::Planner())
                     ("UNIFORM", new pddl_planner::uniform::Planner())
                     ("CEDALION", new pddl_planner::cedalion::Planner())
+                    ("ARVANDHERD", new pddl_planner::arvandherd::Planner())
                     
                     ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))
                     ("FDSS2", new pddl_planner::fast_downward::Planner("seq-sat-fdss-2"))

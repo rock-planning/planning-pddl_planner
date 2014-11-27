@@ -6,6 +6,7 @@ rock_library(pddl_planner
         planners/Lama.cpp
         planners/Uniform.cpp
         planners/Cedalion.cpp
+        planners/ArvandHerd.cpp
         planners/Bfsf.cpp
         planners/FastDownward.cpp
         representation/Domain.cpp
@@ -17,6 +18,7 @@ rock_library(pddl_planner
         planners/Lama.hpp
         planners/Uniform.hpp
         planners/Cedalion.hpp
+        planners/ArvandHerd.cpp
         planners/Bfsf.hpp
         planners/FastDownward.hpp
         representation/Domain.hpp
