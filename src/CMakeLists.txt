@@ -5,8 +5,9 @@ rock_library(pddl_planner
         PDDLPlannerTypes.cpp
         planners/Lama.cpp
         planners/Uniform.cpp
+        planners/Cedalion.cpp
         planners/Bfsf.cpp
-        planners/Fast_downward.cpp
+        planners/FastDownward.cpp
         representation/Domain.cpp
         representation/Problem.cpp
         representation/grammar/lisp/Expression.cpp
@@ -15,8 +16,9 @@ rock_library(pddl_planner
         PDDLPlannerTypes.hpp 
         planners/Lama.hpp
         planners/Uniform.hpp
+        planners/Cedalion.hpp
         planners/Bfsf.hpp
-        planners/Fast_downward.hpp
+        planners/FastDownward.hpp
         representation/Domain.hpp
         representation/Problem.hpp
         representation/grammar/lisp/Expression.hpp

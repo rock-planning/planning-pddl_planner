@@ -51,7 +51,7 @@ namespace fast_downward
          */
         PlanCandidates generatePlanCandidates();
 
-        std::string mTempDir; 
+        std::string mTempDir;
         std::string mDomainFilename;
         std::string mProblemFilename;
         std::string mResultFilename;

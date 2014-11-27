@@ -1,20 +1,20 @@
-#ifndef PDDL_PLANNER_UNIFORM_HPP
-#define PDDL_PLANNER_UNIFORM_HPP
+#ifndef PDDL_PLANNER_CEDALION_HPP
+#define PDDL_PLANNER_CEDALION_HPP
 
 #include <pddl_planner/PDDLPlannerInterface.hpp>
 
 namespace pddl_planner
 {
-namespace uniform
+namespace cedalion
 {
     /**
-     * Implement the interface to the UNIFORM planner
+     * Implement the interface to the CEDALION planner
      *
      */
     class Planner : public PDDLPlannerInterface
     {
     public:
-        std::string getName() const { return "UNIFORM"; }
+        std::string getName() const { return "CEDALION"; }
 
         int getVersion() const { return 1; }
 
@@ -64,5 +64,5 @@ namespace uniform
 }
 
 
-#endif // PDDL_PLANNER_UNIFORM_HPP
+#endif // PDDL_PLANNER_CEDALION_HPP
 

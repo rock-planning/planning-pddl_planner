@@ -1,4 +1,4 @@
-#include <pddl_planner/planners/Bfsf.hpp>
+#include <pddl_planner/planners/Cedalion.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -11,7 +11,7 @@ namespace fs = boost::filesystem;
 
 namespace pddl_planner
 {
-namespace bfsf
+namespace cedalion
 {
 
 const std::string Planner::msDomainFileBasename = "domain.pddl";
@@ -23,25 +23,16 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
 {
     LOG_DEBUG("Planner called with problem: '%s'", problem.c_str());
 
-    int result = system("which bfsf-planner");
+    int result = system("which cedalion-planner");
     if(result != 0)
     {
-        std::string msg = "Could not find 'bfsf-planner' script";
+        std::string msg = "Could not find 'cedalion-planner' script";
         LOG_ERROR("%s",msg.c_str());
         throw PlanGenerationException(msg);
     }
-
-    result = system("which at_bfs_f");
-    if(result != 0)
-    {
-        std::string msg = "Could not find BFSF-planner-related 'at_bfs_f' helper binary";
-        LOG_ERROR("%s",msg.c_str());
-        throw PlanGenerationException(msg);
-    }
-
 
     std::string currentTime = base::Time::now().toString();
-    fs::path path(msTempDirBasename + "/" + currentTime + "_bfsf");
+    fs::path path(msTempDirBasename + "/" + currentTime + "_cedalion");
 
     if(!fs::exists(path))
     {
@@ -62,7 +53,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
     mDomainFilename = mTempDir + "/" + msDomainFileBasename;
     std::ofstream out(mDomainFilename.c_str());
 
-    out << domainDescriptions;
+    out << domainDescriptions; 
     out << "\n";
     out << actionDescriptions;
 
@@ -82,54 +73,48 @@ void Planner::cleanup()
 {
     fs::path path(mTempDir);
     fs::remove_all(path);
-    fs::remove(fs::path("execution.details"));
-    fs::remove(fs::path("at_bfs_f"));
+    fs::remove(fs::path("output"));
+    fs::remove(fs::path("output.sas"));
+    fs::remove(fs::path("plan_numbers_and_cost"));
+    fs::remove(fs::path("elapsed.time"));
 }
 
 PlanCandidates Planner::generatePlanCandidates()
 {
-    std::string cmd_cp_helper = "cp -u $(which at_bfs_f) $(pwd)";
-    int result = system(cmd_cp_helper.c_str());
-    if(0 != result)
+    std::string cmd = "cedalion-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
+    int result = system(cmd.c_str());
+    PlanCandidates planCandidates;
+    if(result)
     {
-        std::string msg = "Could not copy BFSF-planner-related 'at_bfs_f' helper binary in the current folder";
-        LOG_ERROR("%s",msg.c_str());
-        throw PlanGenerationException(msg);
+        LOG_WARN("Planner Fast-Downward Cedalion returned non-zero exit status");
     }
     
-    std::string cmd = "bfsf-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    result = system(cmd.c_str());
-    PlanCandidates planCandidates;
-    if(result == 0)
+    fs::path directory(mTempDir);
+
+    if(!fs::is_directory(directory))
     {
-        fs::path directory(mTempDir);
+        std::stringstream ss;
+        ss << "Temporary directory: '" << directory.string() << "' does not exist";
+        LOG_ERROR("%s", ss.str().c_str());
+        throw PlanGenerationException(ss.str());
+    }
 
-        if(!fs::is_directory(directory))
+    fs::directory_iterator dirIt(directory);
+    for(; dirIt != fs::directory_iterator(); dirIt++)
+    {
+        std::string file = dirIt->path().string();
+        if( boost::algorithm::find_first(file, mResultFilename))
         {
-            std::stringstream ss;
-            ss << "Temporary directory: '" << directory.string() << "' does not exist";
-            LOG_ERROR("%s", ss.str().c_str());
-            throw PlanGenerationException(ss.str());
-        }
-
-        fs::directory_iterator dirIt(directory);
-        for(; dirIt != fs::directory_iterator(); dirIt++)
-        {
-            std::string file = dirIt->path().string();
-            if( boost::algorithm::find_first(file, mResultFilename))
+            LOG_DEBUG("Found result file: %s", file.c_str());
+            try {
+                Plan plan = readPlan(file);
+                planCandidates.addPlan(plan);
+            } catch(const PlanGenerationException& e)
             {
-                LOG_DEBUG("Found result file: %s", file.c_str());
-                try {
-                    Plan plan = readPlan(file);
-                    planCandidates.addPlan(plan);
-                } catch(const PlanGenerationException& e)
-                {
-                    LOG_WARN("Error reading plan: %s", e.what());
-                }
+                LOG_WARN("Error reading plan: %s", e.what());
             }
         }
     }
-
     cleanup();
     return planCandidates;
 }
@@ -141,7 +126,7 @@ Plan Planner::readPlan(const std::string& filename)
     if(!resultFile)
     {
         char buffer[512];
-        snprintf(buffer, 512, "Bfsf: could not open '%s'", filename.c_str());
+        snprintf(buffer, 512, "Cedalion: could not open '%s'", filename.c_str());
         LOG_ERROR("%s", buffer);
         throw PlanGenerationException(buffer);
     }
@@ -152,14 +137,14 @@ Plan Planner::readPlan(const std::string& filename)
     {
         std::string readline(buffer);
         // Result file contains
-        // (action <arg1> <arg2> ... <argN>)
+        // (action <arg1> <arg2> ... <argN>) 
         size_t pos = readline.find_first_of('(');
         size_t endpos = readline.find_last_of(')');
         readline = readline.substr(pos + 1, endpos-1);
         
         // Split on whitespace
         pos = readline.find_first_of(" ");
-        Action action;
+        Action action; 
         if(pos == std::string::npos)
         {
             // There is an action without arguments

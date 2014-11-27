@@ -171,7 +171,12 @@ namespace pddl_planner
         ~Planning();
 
         
+        /**
+         * Retrieve the map of all registered planners 
+         * \return map of registered planners
+         */
         PlannerMap getPlanners() { return mPlanners; }
+        
         /**
          * Register an implementation of a pddl planner
          */

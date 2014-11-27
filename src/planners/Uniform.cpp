@@ -84,36 +84,37 @@ PlanCandidates Planner::generatePlanCandidates()
     std::string cmd = "uniform-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
     int result = system(cmd.c_str());
     PlanCandidates planCandidates;
-    // if(result == 0)
+    if(result)
     {
-        fs::path directory(mTempDir);
+        LOG_WARN("Planner Fast-Downward Uniform returned non-zero exit status");
+    }
+    
+    fs::path directory(mTempDir);
 
-        if(!fs::is_directory(directory))
-        {
-            std::stringstream ss;
-            ss << "Temporary directory: '" << directory.string() << "' does not exist";
-            LOG_ERROR("%s", ss.str().c_str());
-            throw PlanGenerationException(ss.str());
-        }
+    if(!fs::is_directory(directory))
+    {
+        std::stringstream ss;
+        ss << "Temporary directory: '" << directory.string() << "' does not exist";
+        LOG_ERROR("%s", ss.str().c_str());
+        throw PlanGenerationException(ss.str());
+    }
 
-        fs::directory_iterator dirIt(directory);
-        for(; dirIt != fs::directory_iterator(); dirIt++)
+    fs::directory_iterator dirIt(directory);
+    for(; dirIt != fs::directory_iterator(); dirIt++)
+    {
+        std::string file = dirIt->path().string();
+        if( boost::algorithm::find_first(file, mResultFilename))
         {
-            std::string file = dirIt->path().string();
-            if( boost::algorithm::find_first(file, mResultFilename))
+            LOG_DEBUG("Found result file: %s", file.c_str());
+            try {
+                Plan plan = readPlan(file);
+                planCandidates.addPlan(plan);
+            } catch(const PlanGenerationException& e)
             {
-                LOG_DEBUG("Found result file: %s", file.c_str());
-                try {
-                    Plan plan = readPlan(file);
-                    planCandidates.addPlan(plan);
-                } catch(const PlanGenerationException& e)
-                {
-                    LOG_WARN("Error reading plan: %s", e.what());
-                }
+                LOG_WARN("Error reading plan: %s", e.what());
             }
         }
     }
-
     cleanup();
     return planCandidates;
 }

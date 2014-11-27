@@ -78,24 +78,26 @@ int main(int argc, char** argv)
     }
     fclose(problemFile);
 
-try {
-    PlanCandidates planCandidates = planning.plan(problemDescription, plannerName);
-    printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
-} catch(const std::runtime_error& e)
-{
-    printf("Error: %s\n", e.what());
-    if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
+    try 
     {
-        printf("    Available planners:\n");
-        PlannerMap planners = planning.getPlanners();
-        PlannerMap::iterator it = planners.begin();
-        for(; it != planners.end(); ++it)
+        PlanCandidates planCandidates = planning.plan(problemDescription, plannerName);
+        printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
+    } 
+    catch(const std::runtime_error& e)
+    {
+        printf("Error: %s\n", e.what());
+        if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
         {
-            printf("%s ", it->first.c_str());
-        }        
-        printf("\n");
+            printf("    Available planners:\n");
+            PlannerMap planners = planning.getPlanners();
+            PlannerMap::iterator it = planners.begin();
+            for(; it != planners.end(); ++it)
+            {
+                printf("%s ", it->first.c_str());
+            }
+            printf("\n");
+        }
     }
-}
 
     return 0;
 }

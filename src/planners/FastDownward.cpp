@@ -1,4 +1,4 @@
-#include <pddl_planner/planners/Fast_downward.hpp>
+#include <pddl_planner/planners/FastDownward.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -56,7 +56,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
     mDomainFilename = mTempDir + "/" + msDomainFileBasename;
     std::ofstream out(mDomainFilename.c_str());
 
-    out << domainDescriptions; 
+    out << domainDescriptions;
     out << "\n";
     out << actionDescriptions;
 
@@ -148,14 +148,14 @@ Plan Planner::readPlan(const std::string& filename)
     {
         std::string readline(buffer);
         // Result file contains
-        // (action <arg1> <arg2> ... <argN>) 
+        // (action <arg1> <arg2> ... <argN>)
         size_t pos = readline.find_first_of('(');
         size_t endpos = readline.find_last_of(')');
         readline = readline.substr(pos + 1, endpos-1);
         
         // Split on whitespace
         pos = readline.find_first_of(" ");
-        Action action; 
+        Action action;
         if(pos == std::string::npos)
         {
             // There is an action without arguments
