@@ -3,6 +3,7 @@
 #include <pddl_planner/planners/Lama.hpp>
 #include <pddl_planner/planners/Bfsf.hpp>
 #include <pddl_planner/planners/Uniform.hpp>
+#include <pddl_planner/planners/Randward.hpp>
 #include <pddl_planner/planners/Cedalion.hpp>
 #include <pddl_planner/planners/ArvandHerd.hpp>
 #include <pddl_planner/planners/FastDownward.hpp>
@@ -20,6 +21,7 @@ Planning::Planning()
                     ("BFSF", new pddl_planner::bfsf::Planner())
                     ("UNIFORM", new pddl_planner::uniform::Planner())
                     ("CEDALION", new pddl_planner::cedalion::Planner())
+                    ("RANDWARD", new pddl_planner::randward::Planner())
                     ("ARVANDHERD", new pddl_planner::arvandherd::Planner())
                     
                     ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))

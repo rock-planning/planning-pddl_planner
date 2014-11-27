@@ -6,6 +6,7 @@ rock_library(pddl_planner
         planners/Lama.cpp
         planners/Uniform.cpp
         planners/Cedalion.cpp
+        planners/Randward.cpp
         planners/ArvandHerd.cpp
         planners/Bfsf.cpp
         planners/FastDownward.cpp
@@ -18,6 +19,7 @@ rock_library(pddl_planner
         planners/Lama.hpp
         planners/Uniform.hpp
         planners/Cedalion.hpp
+        planners/Randward.hpp
         planners/ArvandHerd.cpp
         planners/Bfsf.hpp
         planners/FastDownward.hpp
