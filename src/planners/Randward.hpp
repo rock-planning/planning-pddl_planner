@@ -30,18 +30,6 @@ namespace randward
         void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
 
         /**
-         * Read a plani
-         * Note, that an empty plan is a valid plan
-         * \throws PlanGenerationException
-         */
-        Plan readPlan(const std::string& filename);
-
-        /**
-         * Remove temporary files and cleanup after plan generation
-         */
-        void cleanup();
-
-        /**
          * Generate the plan candidates for the given problem
          * There is no priority in the order of candidates
          * \throws PlanGenerationException

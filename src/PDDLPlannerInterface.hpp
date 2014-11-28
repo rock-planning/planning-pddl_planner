@@ -2,13 +2,27 @@
 #define PDDL_PLANNER_INTERFACE_H
 
 #include <pddl_planner/PDDLPlannerTypes.hpp>
-
+#include <list>
 namespace pddl_planner
 {
     class PDDLPlannerInterface
     {
     public:
         virtual ~PDDLPlannerInterface() {}
+
+        /**
+         * removes listed files and additionally completely removes the provided directory
+         * \param dir name of dir to be completely removed
+         * \param files the list of file names to be removed
+         */
+        void cleanup(const std::string & dir, const std::list<std::string> & files);
+
+        /**
+         * Read a plani
+         * Note, that an empty plan is a valid plan
+         * \throws PlanGenerationException
+         */
+        Plan readPlan(const std::string& plannerName, const std::string& filename);
 
         /**
          * Get name of this planner implementation

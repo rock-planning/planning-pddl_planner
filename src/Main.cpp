@@ -4,6 +4,11 @@
 #include <errno.h>
 #include <pddl_planner/Planning.hpp>
 #include <cstring>
+#include <boost/thread.hpp>
+
+using namespace boost;
+using namespace boost::this_thread;
+
 
 void usage(int argc, char** argv)
 {

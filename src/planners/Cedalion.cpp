@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <base/logging.h>
 #include <base/time.h>
+#include <list>
 
 namespace fs = boost::filesystem;
 
@@ -69,16 +70,6 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
     mResultFilename = mTempDir + "/" + msResultFileBasename;
 }
 
-void Planner::cleanup()
-{
-    fs::path path(mTempDir);
-    fs::remove_all(path);
-    fs::remove(fs::path("output"));
-    fs::remove(fs::path("output.sas"));
-    fs::remove(fs::path("plan_numbers_and_cost"));
-    fs::remove(fs::path("elapsed.time"));
-}
-
 PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "cedalion-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
@@ -107,7 +98,7 @@ PlanCandidates Planner::generatePlanCandidates()
         {
             LOG_DEBUG("Found result file: %s", file.c_str());
             try {
-                Plan plan = readPlan(file);
+                Plan plan = readPlan(getName(), file);
                 planCandidates.addPlan(plan);
             } catch(const PlanGenerationException& e)
             {
@@ -115,64 +106,14 @@ PlanCandidates Planner::generatePlanCandidates()
             }
         }
     }
-    cleanup();
+    std::list<std::string> files;
+    files.push_back(std::string("output"));
+    files.push_back(std::string("output.sas"));
+    files.push_back(std::string("plan_numbers_and_cost"));
+    files.push_back(std::string("elapsed.time"));
+    
+    cleanup(mTempDir, files);
     return planCandidates;
-}
-
-Plan Planner::readPlan(const std::string& filename)
-{
-    Plan plan;
-    FILE* resultFile = fopen(filename.c_str(), "r");
-    if(!resultFile)
-    {
-        char buffer[512];
-        snprintf(buffer, 512, "Cedalion: could not open '%s'", filename.c_str());
-        LOG_ERROR("%s", buffer);
-        throw PlanGenerationException(buffer);
-    }
-   
-    size_t bufferSize = 2048;
-    char buffer[bufferSize];
-    while( NULL != fgets(buffer, bufferSize, resultFile) )
-    {
-        std::string readline(buffer);
-        // Result file contains
-        // (action <arg1> <arg2> ... <argN>) 
-        size_t pos = readline.find_first_of('(');
-        size_t endpos = readline.find_last_of(')');
-        readline = readline.substr(pos + 1, endpos-1);
-        
-        // Split on whitespace
-        pos = readline.find_first_of(" ");
-        Action action; 
-        if(pos == std::string::npos)
-        {
-            // There is an action without arguments
-            action.name = std::string(readline);
-            plan.addAction(action);
-            continue;
-        } else {
-            action.name = readline.substr(0,pos);
-        }
-
-        while(true)
-        {
-            readline = readline.substr(pos+1);
-            pos = readline.find_first_of(" ");
-            if(pos == std::string::npos)
-            {
-                std::string argument(readline);
-                action.addArgument( argument );
-                break;
-            } else {
-                std::string argument = readline.substr(0,pos);
-                action.addArgument( argument );
-            }
-        }
-        plan.addAction(action);
-    }
-
-    return plan;
 }
 
 }
