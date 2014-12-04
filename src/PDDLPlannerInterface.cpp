@@ -43,13 +43,48 @@ namespace pddl_planner
         }
     }
     
+    std::string pattern(const std::string & planner)
+    {
+        if(!planner.compare("LAMA2011"))
+        {
+            return std::string("f");
+        }
+        if(!planner.compare("CEDALION"))
+        {
+            return std::string("fd_cedalion");
+        }
+        if(!planner.compare("UNIFORM"))
+        {
+            return std::string("fd_uniform");
+        }
+        std::string result = "";
+        if(planner[0] >= 'a')
+        {
+            result.push_back(planner[0]);
+        }
+        else
+        {
+            result.push_back(planner[0] + 32);
+        }
+        return result;
+    }
+    
     PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::string & planner, double timeout)
     {
         boost::thread run_planner_thread(run_planner, cmd, planner, timeout + 0.001);
         bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeout)));
         if(!result)
         {
-            LOG_WARN("Planner %s timed out", planner.c_str());
+            LOG_WARN("Planner %s timed out: killing it...", planner.c_str());
+            std::string command = "pkill --signal 9  -f /planning/" + pattern(planner);
+            int return_code = system(command.c_str());
+            if(-1 == return_code)
+            {
+                std::string msg = "Error: planner " + planner + " could not be killed";
+                LOG_ERROR("%s",msg.c_str());
+                throw PlanGenerationException(msg);
+            }
+            LOG_WARN("Planner %s has been successfully killed", planner.c_str());
         }
         PlanCandidates planCandidates;
 
