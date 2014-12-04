@@ -3,6 +3,8 @@
 
 #include <pddl_planner/PDDLPlannerTypes.hpp>
 #include <list>
+#define TIMEOUT 7.
+
 namespace pddl_planner
 {
     class PDDLPlannerInterface
@@ -16,6 +18,14 @@ namespace pddl_planner
          * \param files the list of file names to be removed
          */
         void cleanup(const std::string & dir, const std::list<std::string> & files);
+
+        /**
+         * Generate the plan candidates for the given problem
+         * There is no priority in the order of candidates
+         * \throws PlanGenerationException
+         */
+        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::string & planner = "", double timeout = TIMEOUT);
+
 
         /**
          * Read a plani
@@ -43,7 +53,7 @@ namespace pddl_planner
          * \return Solutions candidates
          * \throws PlanGenerationException if not implemented
          */
-        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain) { throw PlanGenerationException("Plan method not implemented"); }
+        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeout = TIMEOUT) { throw PlanGenerationException("Plan method not implemented"); }
     };
 
 }

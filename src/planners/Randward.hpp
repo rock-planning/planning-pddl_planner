@@ -21,7 +21,7 @@ namespace randward
         /**
          * Create plan candidates for the given pddl planning problem
          */
-        PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
+        PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout = TIMEOUT);
 
     private:
         /**
@@ -36,6 +36,7 @@ namespace randward
          */
         PlanCandidates generatePlanCandidates();
 
+        double      mTimeout;
         std::string mTempDir;
         std::string mDomainFilename;
         std::string mProblemFilename;

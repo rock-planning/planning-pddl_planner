@@ -6,6 +6,13 @@
 #include <string.h>
 #include <base/logging.h>
 #include <base/time.h>
+#include <boost/thread.hpp>
+#include <boost/chrono/chrono.hpp>
+#include <signal.h>
+#include <unistd.h>
+#include <cstdlib>
+
+namespace fs = boost::filesystem;
 
 namespace pddl_planner
 {
@@ -20,6 +27,60 @@ namespace pddl_planner
             boost::filesystem::remove(boost::filesystem::path(*(it)));
         }
     }
+        
+    void run_planner(const std::string & cmd, const std::string & planner, double timeout)
+    {
+        int result = system(cmd.c_str());
+        if(-1 == result)
+        {
+            std::string msg = "Error: planner " + planner + " returned an error during execution";
+            LOG_ERROR("%s",msg.c_str());
+            throw PlanGenerationException(msg);
+        }
+        if(result)
+        {
+             LOG_WARN("Planner %s returned non-zero exit status", planner.c_str());
+        }
+    }
+    
+    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::string & planner, double timeout)
+    {
+        boost::thread run_planner_thread(run_planner, cmd, planner, timeout + 0.001);
+        bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeout)));
+        if(!result)
+        {
+            LOG_WARN("Planner %s timed out", planner.c_str());
+        }
+        PlanCandidates planCandidates;
+
+        fs::path directory(tempDir);
+
+        if(!fs::is_directory(directory))
+        {
+            std::stringstream ss;
+            ss << "Temporary directory: '" << directory.string() << "' does not exist";
+            LOG_ERROR("%s", ss.str().c_str());
+            throw PlanGenerationException(ss.str());
+        }
+
+        fs::directory_iterator dirIt(directory);
+        for(; dirIt != fs::directory_iterator(); dirIt++)
+        {
+            std::string file = dirIt->path().string();
+            if( boost::algorithm::find_first(file, resultFilename))
+            {
+                LOG_DEBUG("Found result file: %s", file.c_str());
+                try {
+                    Plan plan = readPlan(getName(), file);
+                    planCandidates.addPlan(plan);
+                } catch(const PlanGenerationException& e)
+                {
+                    LOG_WARN("Error reading plan: %s", e.what());
+                }
+            }
+        }
+        return planCandidates;
+    }    
     
     Plan PDDLPlannerInterface::readPlan(const std::string& plannerName, const std::string& filename)
     {

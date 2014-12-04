@@ -7,6 +7,8 @@
 #include <pddl_planner/representation/Problem.hpp>
 #include <pddl_planner/PDDLPlannerTypes.hpp>
 
+#define TIMEOUT 7.
+
 /**
  * \mainpage PDDL based planning
  * This library provides a somewhat generalized interface for planning and allow to embed a selection of
@@ -228,19 +230,19 @@ namespace pddl_planner
          * \return List of solutions, i.e. plans
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const std::string& goal, const std::string& planner = "LAMA");
+        PlanCandidates plan(const std::string& goal, double timeout = TIMEOUT, const std::string& planner = "LAMA");
 
         /**
          * Generate a plan for a given problem -- the problem definition here already contains
          * the domain description
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const representation::Problem& problem, const std::string& planner = "LAMA");
+        PlanCandidates plan(const representation::Problem& problem, double timeout = TIMEOUT, const std::string& planner = "LAMA");
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
          */
-        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& planner = "LAMA");
+        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, double timeout = TIMEOUT, const std::string& planner = "LAMA");
 
     private: 
         ActionDescriptions mActionDescriptions;

@@ -20,7 +20,7 @@ const std::string Planner::msProblemFileBasename = "problem.pddl";
 const std::string Planner::msResultFileBasename = "plan";
 const std::string Planner::msTempDirBasename = "/tmp";
 
-PlanCandidates Planner::plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions)
+PlanCandidates Planner::plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout)
 {
     LOG_DEBUG("Planner called with problem: '%s'", problem.c_str());
 
@@ -43,7 +43,7 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
         }
     }
     mTempDir = path.string();
-
+    mTimeout = timeout;
     prepare(problem, actionDescriptions, domainDescriptions);
     PlanCandidates planCandidates = generatePlanCandidates();
     return planCandidates;
@@ -73,38 +73,9 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "lama-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    int result = system(cmd.c_str());
-    PlanCandidates planCandidates;
-    if(result == 0)
-    {
-        fs::path directory(mTempDir);
-
-        if(!fs::is_directory(directory))
-        {
-            std::stringstream ss;
-            ss << "Temporary directory: '" << directory.string() << "' does not exist";
-            LOG_ERROR("%s", ss.str().c_str());
-            throw PlanGenerationException(ss.str());
-        }
-
-        fs::directory_iterator dirIt(directory);
-        for(; dirIt != fs::directory_iterator(); dirIt++)
-        {
-            std::string file = dirIt->path().string();
-            if( boost::algorithm::find_first(file, mResultFilename))
-            {
-                LOG_DEBUG("Found result file: %s", file.c_str());
-                try {
-                    Plan plan = readPlan(getName(), file);
-                    planCandidates.addPlan(plan);
-                } catch(const PlanGenerationException& e)
-                {
-                    LOG_WARN("Error reading plan: %s", e.what());
-                }
-            }
-        }
-    }
-
+    
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, getName(), mTimeout);
+    
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));

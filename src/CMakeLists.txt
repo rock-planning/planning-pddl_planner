@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED filesystem system)
+find_package(Boost REQUIRED filesystem system thread chrono)
 
 rock_library(pddl_planner
     SOURCES Planning.cpp
@@ -29,7 +29,7 @@ rock_library(pddl_planner
         representation/grammar/lisp/Expression.hpp
     DEPS_PKGCONFIG base-types
         base-lib
-    DEPS_CMAKE Boost
+    DEPS_CMAKE Boost 
     )
 
 rock_executable(pddl_planner_bin Main.cpp

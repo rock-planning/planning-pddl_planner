@@ -4,15 +4,14 @@
 #include <errno.h>
 #include <pddl_planner/Planning.hpp>
 #include <cstring>
-#include <boost/thread.hpp>
+#include <cstdlib>
 
-using namespace boost;
-using namespace boost::this_thread;
+#define TIMEOUT 7.
 
 
 void usage(int argc, char** argv)
 {
-    printf("usage: %s [-p <planner-name>] <domain-description-file> <problem-file>\n",argv[0]);
+    printf("usage: %s [-p <planner-name>] [-t <timeout-seconds(float)>] <domain-description-file> <problem-file>\n",argv[0]);
 }
 
 int main(int argc, char** argv)
@@ -26,6 +25,8 @@ int main(int argc, char** argv)
         exit(0);
     }
 
+    double timeout = TIMEOUT;
+
     std::string firstArg = argv[1];
     if(firstArg == "-h" || firstArg == "--help")
     {
@@ -37,15 +38,47 @@ int main(int argc, char** argv)
     std::string domainFilename;
     std::string problemFilename; 
 
-    if(firstArg == "-p" && argc == 5)
+    if(firstArg == "-p" && (argc == 5 || 7 == argc)) 
     {
-        plannerName = argv[2];
-        domainFilename = argv[3];
-        problemFilename = argv[4];
-    } else if(argc == 3) {
+        if(5 == argc)
+        {
+            plannerName = argv[2];
+            domainFilename = argv[3];
+            problemFilename = argv[4];            
+        }
+        else
+        {
+            if("-t" != std::string(argv[3]))
+            {                
+                usage(argc, argv);
+                exit(0);
+            }
+            plannerName = argv[2];
+            timeout = atof(argv[4]);
+            domainFilename = argv[5];
+            problemFilename = argv[6];            
+        }
+    } 
+    else if("-t" == firstArg && 7 == argc)
+    {
+        if("-p" != std::string(argv[3]))
+        {                
+            usage(argc, argv);
+            exit(0);
+        }
+        plannerName = argv[4];
+        timeout = atof(argv[2]);
+        domainFilename = argv[5];
+        problemFilename = argv[6];            
+
+    }
+    else if(argc == 3) 
+    {
         domainFilename = argv[1];
         problemFilename = argv[2];
-    } else {
+    } 
+    else 
+    {
         usage(argc, argv);
         exit(0);
     }
@@ -85,7 +118,7 @@ int main(int argc, char** argv)
 
     try 
     {
-        PlanCandidates planCandidates = planning.plan(problemDescription, plannerName);
+        PlanCandidates planCandidates = planning.plan(problemDescription, timeout, plannerName);
         printf("PlanCandidates:\n%s\n", planCandidates.toString().c_str());
     } 
     catch(const std::runtime_error& e)

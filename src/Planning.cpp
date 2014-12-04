@@ -114,26 +114,26 @@ std::string Planning::getDomainDescriptions() const
     return domainDescriptions;
 }
 
-PlanCandidates Planning::plan(const std::string& problem, const std::string& planner_name)
+PlanCandidates Planning::plan(const std::string& problem, double timeout, const std::string& planner_name)
 {
     LOG_DEBUG_S << "Planning requested: " << std::endl
         << "-DOMAIN-" << std::endl << getDomainDescriptions()
         << "-PROBLEM-" << std::endl << problem;
 
     PDDLPlannerInterface* planner = getPlanner(planner_name);
-    return planner->plan(problem, getActionDescriptions(), getDomainDescriptions());
+    return planner->plan(problem, getActionDescriptions(), getDomainDescriptions(), timeout);
 }
 
-PlanCandidates Planning::plan(const representation::Problem& problem, const std::string& planner_name)
+PlanCandidates Planning::plan(const representation::Problem& problem, double timeout, const std::string& planner_name)
 {
     setDomainDescription(problem.domain.name, problem.domain.toLISP());
-    return plan(problem.toLISP(), planner_name);
+    return plan(problem.toLISP(), timeout, planner_name);
 }
 
-PlanCandidates Planning::plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& planner_name)
+PlanCandidates Planning::plan(const representation::Domain& domain, const representation::Problem& problem, double timeout, const std::string& planner_name)
 {
     setDomainDescription(domain.name, domain.toLISP());
-    return plan(problem.toLISP(), planner_name);
+    return plan(problem.toLISP(), timeout, planner_name);
 }
 
 }
