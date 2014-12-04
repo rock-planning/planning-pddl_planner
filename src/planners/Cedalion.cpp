@@ -74,8 +74,11 @@ PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "cedalion-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
     
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, getName(), mTimeout);
-    
+
+    std::list<std::string> pattern;
+    pattern.push_back("search");
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, getName(), mTimeout);
+        
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));

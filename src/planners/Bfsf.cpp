@@ -91,8 +91,11 @@ PlanCandidates Planner::generatePlanCandidates()
     }
     
     std::string cmd = "bfsf-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, getName(), mTimeout);
-    
+
+    std::list<std::string> pattern;
+    pattern.push_back("at_bfs_f");
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, getName(), mTimeout);
+        
     std::list<std::string> files;
     files.push_back(std::string("execution.details"));
     files.push_back(std::string("at_bfs_f"));

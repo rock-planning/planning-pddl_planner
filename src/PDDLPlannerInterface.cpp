@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <list>
 
 namespace fs = boost::filesystem;
 
@@ -43,48 +44,41 @@ namespace pddl_planner
         }
     }
     
-    std::string pattern(const std::string & planner)
-    {
-        if(!planner.compare("LAMA2011"))
-        {
-            return std::string("f");
-        }
-        if(!planner.compare("CEDALION"))
-        {
-            return std::string("fd_cedalion");
-        }
-        if(!planner.compare("UNIFORM"))
-        {
-            return std::string("fd_uniform");
-        }
-        std::string result = "";
-        if(planner[0] >= 'a')
-        {
-            result.push_back(planner[0]);
-        }
-        else
-        {
-            result.push_back(planner[0] + 32);
-        }
-        return result;
-    }
-    
-    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::string & planner, double timeout)
+    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, const std::string & planner, double timeout)
     {
         boost::thread run_planner_thread(run_planner, cmd, planner, timeout + 0.001);
         bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeout)));
         if(!result)
         {
             LOG_WARN("Planner %s timed out: killing it...", planner.c_str());
-            std::string command = "pkill --signal 9  -f /planning/" + pattern(planner);
+            
+            std::string command = "pkill --signal 9 -f \"" + cmd + "\"";
             int return_code = system(command.c_str());
-            if(-1 == return_code)
+            
+            bool error = false;
+            if(patternList.empty())
+            {
+                LOG_WARN("Planner %s does not provide any patterns in its individual implementation", planner.c_str());
+            }
+            else
+            {
+                for(std::list<std::string>::const_iterator it = patternList.begin(); !error && it != patternList.end(); ++it)
+                {
+                    std::string command_list = "pkill --signal 9 -f /planning/.*" + (*it); 
+                    if(-1 == system(command_list.c_str()))
+                    {
+                        error = true;
+                    }
+                }
+            }
+            if(-1 == return_code || error)
             {
                 std::string msg = "Error: planner " + planner + " could not be killed";
                 LOG_ERROR("%s",msg.c_str());
                 throw PlanGenerationException(msg);
             }
             LOG_WARN("Planner %s has been successfully killed", planner.c_str());
+
         }
         PlanCandidates planCandidates;
 

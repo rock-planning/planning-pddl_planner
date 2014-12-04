@@ -24,7 +24,7 @@ namespace pddl_planner
          * There is no priority in the order of candidates
          * \throws PlanGenerationException
          */
-        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::string & planner = "", double timeout = TIMEOUT);
+        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, const std::string & planner = "", double timeout = TIMEOUT);
 
 
         /**
