@@ -23,10 +23,8 @@ Planning::Planning()
                     ("CEDALION", new pddl_planner::cedalion::Planner())
                     ("RANDWARD", new pddl_planner::randward::Planner())
                     ("ARVANDHERD", new pddl_planner::arvandherd::Planner())
-                    
                     ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))
                     ("FDSS2", new pddl_planner::fast_downward::Planner("seq-sat-fdss-2"))
-                    
                     ("LAMA2011", new pddl_planner::fast_downward::Planner("seq-sat-lama-2011"))
                     ("FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-2"))
                     ("FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-1"));
@@ -40,6 +38,21 @@ Planning::~Planning()
         delete it->second;
         it->second = NULL;
     }
+}
+
+std::list<std::string> Planning::plannersAvailable()
+{
+    std::list<std::string> result;
+    PlannerMap::iterator it = mPlanners.begin();
+    for(; it != mPlanners.end(); ++it)
+    {
+        std::string cmd = std::string("which ") + it->second->getCmd() + " > /dev/null";
+        if(0 == system(cmd.c_str()))
+        {
+            result.push_back(it->first);
+        }
+    }
+    return result;
 }
 
 void Planning::registerPlanner(PDDLPlannerInterface* planner)

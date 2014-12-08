@@ -15,8 +15,8 @@ rock_library(pddl_planner
         representation/Problem.cpp
         representation/grammar/lisp/Expression.cpp
     HEADERS Planning.hpp
-        PDDLPlannerInterface.hpp 
-        PDDLPlannerTypes.hpp 
+        PDDLPlannerInterface.hpp
+        PDDLPlannerTypes.hpp
         planners/Lama.hpp
         planners/Uniform.hpp
         planners/Cedalion.hpp
@@ -29,7 +29,7 @@ rock_library(pddl_planner
         representation/grammar/lisp/Expression.hpp
     DEPS_PKGCONFIG base-types
         base-lib
-    DEPS_CMAKE Boost 
+    DEPS_CMAKE Boost
     )
 
 rock_executable(pddl_planner_bin Main.cpp

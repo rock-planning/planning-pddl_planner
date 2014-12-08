@@ -81,6 +81,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 
 PlanCandidates Planner::generatePlanCandidates()
 {
+    chdir(mTempDir.c_str());
     std::string cmd_cp_helper = "cp -u $(which at_bfs_f) $(pwd)";
     int result = system(cmd_cp_helper.c_str());
     if(0 != result)
@@ -94,7 +95,7 @@ PlanCandidates Planner::generatePlanCandidates()
 
     std::list<std::string> pattern;
     pattern.push_back("at_bfs_f");
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, getName(), mTimeout);
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
         
     std::list<std::string> files;
     files.push_back(std::string("execution.details"));

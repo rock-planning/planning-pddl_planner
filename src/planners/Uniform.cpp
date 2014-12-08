@@ -54,7 +54,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
     mDomainFilename = mTempDir + "/" + msDomainFileBasename;
     std::ofstream out(mDomainFilename.c_str());
 
-    out << domainDescriptions; 
+    out << domainDescriptions;
     out << "\n";
     out << actionDescriptions;
 
@@ -73,18 +73,17 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "uniform-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    
 
     std::list<std::string> pattern;
     pattern.push_back("search");
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, getName(), mTimeout);
-        
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
+
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));
     files.push_back(std::string("plan_numbers_and_cost"));
     files.push_back(std::string("elapsed.time"));
-    
+
     cleanup(mTempDir, files);
     return planCandidates;
 }

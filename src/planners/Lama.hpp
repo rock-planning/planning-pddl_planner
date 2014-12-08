@@ -14,14 +14,32 @@ namespace lama
     class Planner : public PDDLPlannerInterface
     {
     public:
+        /**
+         * Get name of this planner implementation
+         * \return Name of planner
+         * \throws PlanGenerationException if not implemented
+         */
         std::string getName() const { return "LAMA"; }
 
+        
+        /**
+         * Get name of this planner's execution script/runnable
+         * \return Name of planner's main execution script/runnable
+         * \throws PlanGenerationException if not implemented
+         */
+        std::string getCmd() const { return "lama-planner"; }
+
+        /**
+         * Get version of this planner implementation
+         * \return version as int
+         * \throws PlanGenerationException if not implemented
+         */
         int getVersion() const { return 1; }
 
         /**
          * Create plan candidates for the given pddl planning problem
          */
-        PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout = TIMEOUT);
+        PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout);
 
     private:
         /**
@@ -37,7 +55,7 @@ namespace lama
         PlanCandidates generatePlanCandidates();
 
         double      mTimeout;
-        std::string mTempDir; 
+        std::string mTempDir;
         std::string mDomainFilename;
         std::string mProblemFilename;
         std::string mResultFilename;
@@ -49,7 +67,7 @@ namespace lama
 
         Plan mPlan;
     };
-} 
+}
 }
 
 

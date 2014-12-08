@@ -4,6 +4,8 @@
 #include <string>
 #include <stdexcept>
 #include <map>
+#include <list>
+#include <string>
 #include <pddl_planner/representation/Problem.hpp>
 #include <pddl_planner/PDDLPlannerTypes.hpp>
 
@@ -180,6 +182,12 @@ namespace pddl_planner
         PlannerMap getPlanners() { return mPlanners; }
         
         /**
+         * Retrieves available planners
+         * \return list of available planners names
+         */
+        std::list<std::string> plannersAvailable();
+        
+        /**
          * Register an implementation of a pddl planner
          */
         void registerPlanner(PDDLPlannerInterface* planner);
@@ -201,14 +209,14 @@ namespace pddl_planner
          */
         PDDLPlannerInterface* getPlanner(const std::string& name) const;
 
-        /** 
+        /**
          * Set the description for a specific action
          */
         void setActionDescription(const std::string& action, const std::string& description);
 
-        /* 
-        * Set the description for a specific domain
-        */
+        /**
+         * Set the description for a specific domain
+         */
         void setDomainDescription(const std::string& domain, const std::string& description);
 
         /**
@@ -244,7 +252,7 @@ namespace pddl_planner
          */
         PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, double timeout = TIMEOUT, const std::string& planner = "LAMA");
 
-    private: 
+    private:
         ActionDescriptions mActionDescriptions;
         DomainDescriptions mDomainDescriptions;
     };
@@ -252,4 +260,3 @@ namespace pddl_planner
 
 }
 #endif // PDDL_PLANNER_H
-

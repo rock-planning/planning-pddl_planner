@@ -83,4 +83,3 @@ namespace pddl_planner
 
 }
 #endif // PDDL_PLANNER_TYPES
-

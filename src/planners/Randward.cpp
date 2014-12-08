@@ -73,12 +73,10 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "randward-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    
 
     std::list<std::string> pattern;
     pattern.push_back("search");
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, getName(), mTimeout);
-        
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));

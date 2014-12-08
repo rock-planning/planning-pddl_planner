@@ -3,7 +3,6 @@
 
 #include <pddl_planner/PDDLPlannerTypes.hpp>
 #include <list>
-#define TIMEOUT 7.
 
 namespace pddl_planner
 {
@@ -24,7 +23,7 @@ namespace pddl_planner
          * There is no priority in the order of candidates
          * \throws PlanGenerationException
          */
-        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, const std::string & planner = "", double timeout = TIMEOUT);
+        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, double timeout, const std::string & planner = "");
 
 
         /**
@@ -42,6 +41,13 @@ namespace pddl_planner
         virtual std::string getName() const { throw PlanGenerationException("PDDLPlannerInterface getName method not implemented"); }
 
         /**
+         * Get name of this planner's execution script/runnable
+         * \return Name of planner's main execution script/runnable
+         * \throws PlanGenerationException if not implemented
+         */
+        virtual std::string getCmd() const { throw PlanGenerationException("PDDLPlannerInterface getCmd method not implemented"); }
+
+        /**
          * Get version of this planner implementation
          * \return version as int
          * \throws PlanGenerationException if not implemented
@@ -53,7 +59,7 @@ namespace pddl_planner
          * \return Solutions candidates
          * \throws PlanGenerationException if not implemented
          */
-        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeout = TIMEOUT) { throw PlanGenerationException("Plan method not implemented"); }
+        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeout) { throw PlanGenerationException("Plan method not implemented"); }
     };
 
 }
