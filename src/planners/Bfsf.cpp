@@ -81,26 +81,15 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 
 PlanCandidates Planner::generatePlanCandidates()
 {
-    chdir(mTempDir.c_str());
-    std::string cmd_cp_helper = "cp -u $(which at_bfs_f) $(pwd)";
-    int result = system(cmd_cp_helper.c_str());
-    if(0 != result)
-    {
-        std::string msg = "Could not copy BFSF-planner-related 'at_bfs_f' helper binary in the current folder";
-        LOG_ERROR("%s",msg.c_str());
-        throw PlanGenerationException(msg);
-    }
-    
-    std::string cmd = "bfsf-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
+    std::string cmd = "bfsf-planner --domain " + mDomainFilename + " --problem " + mProblemFilename + " --output " + mResultFilename;
 
     std::list<std::string> pattern;
     pattern.push_back("at_bfs_f");
     PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
-        
     std::list<std::string> files;
     files.push_back(std::string("execution.details"));
     files.push_back(std::string("at_bfs_f"));
-    
+
     cleanup(mTempDir, files);
     return planCandidates;
 }

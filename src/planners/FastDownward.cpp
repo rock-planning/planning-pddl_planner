@@ -27,10 +27,10 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
 {
     LOG_DEBUG("Planner called with problem: '%s'", problem.c_str());
     
-    int result = system("which planner-fast-downward.py");
+    int result = system("which fast_downward-planner");
     if(result != 0)
     {
-        std::string msg = "Could not find 'planner-fast-downward.py' planner script";
+        std::string msg = "Could not find 'fast_downward-planner' planner script";
         LOG_ERROR("%s",msg.c_str());
         throw PlanGenerationException(msg);
     }
@@ -80,11 +80,11 @@ PlanCandidates Planner::generatePlanCandidates()
     if(mAlias.empty())
     {
         LOG_WARN("Fast-Downward is being used with no alias!!");
-        cmd = "planner-fast-downward.py " + mDomainFilename + " " + mProblemFilename;
+        cmd = "fast_downward-planner " + mDomainFilename + " " + mProblemFilename;
     }
     else
     {
-        cmd = "planner-fast-downward.py --alias " + mAlias + " " + mDomainFilename + " " + mProblemFilename;
+        cmd = "fast_downward-planner --alias " + mAlias + " " + mDomainFilename + " " + mProblemFilename;
     }    
 
     

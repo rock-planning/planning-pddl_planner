@@ -72,7 +72,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 
 PlanCandidates Planner::generatePlanCandidates()
 {
-    std::string cmd = "cedalion-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
+    std::string cmd = "cedalion-planner seq-sat-cedalion " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
     
 
     std::list<std::string> pattern;

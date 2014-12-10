@@ -1,3 +1,53 @@
+/**
+ * 
+ *      Main test script for the pddl_planner component 
+ * 
+ * usage:
+ * 
+ *  ./pddl_planner [-p <planner-name>] [-t <timeout-seconds(float)>] <domain-description-file> <problem-file>
+ * 
+ * 
+ * 
+ *                                      OR:
+ *                                      --
+ * 
+ * usage:
+ * 
+ *  ./pddl_planner [-l <# of planners> <planner-name> <planner-name> ... ] [-t <timeout-seconds(float)>] [-s] <domain-description-file> <problem-file>
+ * 
+ * 
+ * 
+ *          -s,  --sequential           run listed planners sequentially (no threads)
+ * 
+ * 
+ *      Note: Parallel planners execution is assumed by default.
+ *      ----
+ * 
+ * 
+ *      Rationale for using threads:
+ *      ---------------------------
+ *  
+ *  -> threads created in the main function have access to the common global string variable 'output'; 
+ *      - it is more convenient to carefully append (!concurrency issues!) each individual planner execution result 
+ *      to the 'output', rather than redirecting the standard output of the planners to a common location, later on
+ *      reading it again
+ *      - functionality to read the plan files is already implemented at the planners level and their common interface (PDDLPlannerInterface),
+ *      the level where the filenames and locations of the result plans are known.
+ *                                                                          -----
+ * 
+ * 
+ *  -> synchronizing the waiting for results is simpler and more reliable when using the threads API (i.e. simply joining the individual threads)
+ *  rather than sending signals around from forked child processes (the ones dealing with individual planners) back to the 
+ *  main process (their common parent)
+ * 
+ * 
+ *  -> threads are much more time and memory efficient (they share the same memory, switching between threads is much faster for the scheduler 
+ *  than switching between processes and so)
+ * 
+ */
+
+
+
 #include <iostream>
 #include <stdio.h>
 #include <map>
@@ -11,7 +61,7 @@
 #include <unistd.h>
 
 #define TIMEOUT 7.
-#define INPUT_VERIFICATION
+// #define INPUT_VERIFICATION
 
 double timeout = TIMEOUT;
 bool seq = false, liste = false;
@@ -48,7 +98,7 @@ void run_planner(const std::string & planner, double timeout)
         printf("Error: %s\n", e.what());
         if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
         {
-            printf("    Available planners:\n");
+            printf("    Registered planners:\n");
             pddl_planner::PlannerMap planners = planning.getPlanners();
             pddl_planner::PlannerMap::iterator it = planners.begin();
             for(; it != planners.end(); ++it)
@@ -285,7 +335,7 @@ int main(int argc, char** argv)
                     printf("Error: %s\n", e.what());
                     if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
                     {
-                        printf("    Available planners:\n");
+                        printf("    Registered planners:\n");
                         PlannerMap planners = planning.getPlanners();
                         PlannerMap::iterator it = planners.begin();
                         for(; it != planners.end(); ++it)
@@ -328,7 +378,7 @@ int main(int argc, char** argv)
             printf("Error: %s\n", e.what());
             if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
             {
-                printf("    Available planners:\n");
+                printf("    Registered planners:\n");
                 PlannerMap planners = planning.getPlanners();
                 PlannerMap::iterator it = planners.begin();
                 for(; it != planners.end(); ++it)

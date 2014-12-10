@@ -72,7 +72,7 @@ void Planner::prepare(const std::string& problem, const std::string& actionDescr
 
 PlanCandidates Planner::generatePlanCandidates()
 {
-    std::string cmd = "uniform-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
+    std::string cmd = "uniform-planner seq-sat-uniform " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
 
     std::list<std::string> pattern;
     pattern.push_back("search");

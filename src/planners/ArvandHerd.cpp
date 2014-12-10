@@ -75,7 +75,7 @@ PlanCandidates Planner::generatePlanCandidates()
     std::string cmd = "arvand-herd-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
     
     std::list<std::string> pattern;
-    pattern.push_back("search");
+    pattern.push_back("arvand_herd/search/");
     PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
     
     std::list<std::string> files;

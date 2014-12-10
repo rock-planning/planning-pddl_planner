@@ -68,7 +68,7 @@ namespace pddl_planner
             {
                 for(std::list<std::string>::const_iterator it = patternList.begin(); !error && it != patternList.end(); ++it)
                 {
-                    std::string command_list = "pkill --signal 9 -f /planning/.*" + (*it); 
+                    std::string command_list = "pkill --signal 9 -f " + (*it); 
                     if(-1 == system(command_list.c_str()))
                     {
                         error = true;

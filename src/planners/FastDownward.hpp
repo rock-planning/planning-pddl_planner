@@ -27,7 +27,7 @@ namespace fast_downward
          * \return Name of planner's main execution script/runnable
          * \throws PlanGenerationException if not implemented
          */
-        std::string getCmd() const { return "planner-fast-downward.py"; }
+        std::string getCmd() const { return "fast_downward-planner"; }
 
         /**
          * Get version of this planner implementation
