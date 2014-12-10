@@ -1,12 +1,17 @@
 <package>
   <description brief="PDDL planner interface">
       Simple pddl planner interface, further information about PDDL can be found at: 
-      http://ipc.informatik.uni-freiburg.de/PddlExtension,
+      http://ipc.informatik.uni-freiburg.de/PddlExtension
   </description>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
-  <license></license>
-  <url>http://</url>
-  <logo>http://</logo>
+  <license>LGPLv3 or higher</license>
+  <url>http://github.com/rock-planning/pddl_planner.git</url>
   <depend package="base/types" />
-  <depend package="planning/lama" />
+  <depend package="planning/arvand_herd" optional="1" />
+  <depend package="planning/bfsf" optional="1" />
+  <depend package="planning/fast_downward" optional="1" />
+  <depend package="planning/fd_cedalion" optional="1" />
+  <depend package="planning/fd_uniform" optional="1" />
+  <depend package="planning/lama" optional="1" />
+  <depend package="planning/randward" optional="1" />
 </package>
