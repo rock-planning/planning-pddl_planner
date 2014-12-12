@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <pddl_planner/representation/Problem.hpp>
@@ -241,7 +242,7 @@ namespace pddl_planner
          * \return List of solutions, i.e. plans
          * \throws PlanGenerationException on failure
          */
-        PlanResultList plan(const std::string& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const std::string& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
         /**
          * Plan towards a given goal
@@ -255,12 +256,12 @@ namespace pddl_planner
          * the domain description
          * \throws PlanGenerationException on failure
          */
-        PlanResultList plan(const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
          */
-        PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
         /**
          * Generate a plan for a given problem -- the problem definition here already contains

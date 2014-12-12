@@ -51,6 +51,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <map>
+#include <set>
 #include <errno.h>
 #include <pddl_planner/Planning.hpp>
 #include <cstring>
@@ -62,7 +63,7 @@
 
 double timeout = TIMEOUT;
 bool seq = false, liste = false;
-std::vector<std::string> planners;
+std::set<std::string> planners;
 pddl_planner::Planning planning;
 std::string problemDescription;
 
@@ -163,7 +164,7 @@ int main(int argc, char** argv)
         }
         for(int i = 0; i < nplanners; ++i)
         {
-            planners.push_back(std::string(argv[3 + i]));
+            planners.insert(std::string(argv[3 + i]));
         }
         if("-t" == std::string(argv[3 + nplanners]))
         {
@@ -265,7 +266,7 @@ int main(int argc, char** argv)
 
 #ifdef INPUT_VERIFICATION
     printf("Input:\n    planner(s)Name  = ");
-    for(std::vector<std::string>::iterator it = planners.begin(); it != planners.end(); ++it)
+    for(std::set<std::string>::iterator it = planners.begin(); it != planners.end(); ++it)
     {
         printf("%s ", (*it).c_str());
     }
@@ -274,7 +275,7 @@ int main(int argc, char** argv)
 
     if(!liste)
     {
-        planners.push_back(plannerName);
+        planners.insert(plannerName);
     }
     try
     {
