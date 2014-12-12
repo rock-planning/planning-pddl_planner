@@ -254,12 +254,27 @@ namespace pddl_planner
         /**
          * Generate a plan for a given problem -- the problem definition here already contains
          * the domain description
+         * \param domain Planning domain to be used
+         * \param problem Planning problem
+         * \param planners List of planners that will be used for planning
+         * \param sequential Set to true if planners should be called one after
+         * another, false will execute all planners in parallel
+         * \param timeout Timeout in seconds -- will apply to each planner call
+         * individually when using with sequential
          * \throws PlanGenerationException on failure
          */
         PlanResultList plan(const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
+         * \param domain Planning domain to be used
+         * \param problem Planning problem
+         * \param planners List of planners that will be used for planning
+         * \param sequential Set to true if planners should be called one after
+         * another, false will execute all planners in parallel
+         * \param timeout Timeout in seconds -- will apply to each planner call
+         * individually when using with sequential
+         * \throws PlanGenerationException on failure
          */
         PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
