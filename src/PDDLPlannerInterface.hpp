@@ -60,6 +60,25 @@ namespace pddl_planner
          * \throws PlanGenerationException if not implemented
          */
         virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeout) { throw PlanGenerationException("Plan method not implemented"); }
+
+    protected:
+        /**
+         *
+         */
+        void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
+
+        double      mTimeout;
+        std::string mTempDir;
+        std::string mDomainFilename;
+        std::string mProblemFilename;
+        std::string mResultFilename;
+
+        std::string msResultFileBasename;
+        const static std::string msProblemFileBasename;
+        const static std::string msDomainFileBasename;
+        const static std::string msTempDirBasename;
+
+        Plan mPlan;
     };
 
 }

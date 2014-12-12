@@ -17,6 +17,11 @@ namespace fs = boost::filesystem;
 
 namespace pddl_planner
 {
+
+    const std::string PDDLPlannerInterface::msDomainFileBasename = "domain.pddl";
+    const std::string PDDLPlannerInterface::msProblemFileBasename = "problem.pddl";
+    const std::string PDDLPlannerInterface::msTempDirBasename = "/tmp";
+
     void PDDLPlannerInterface::cleanup(const std::string & dir, const std::list<std::string> & files)
     {
         std::list<std::string>::const_iterator it = files.begin();
@@ -42,6 +47,27 @@ namespace pddl_planner
         {
              LOG_WARN("Planner %s returned non-zero exit status", planner.c_str());
         }
+    }
+
+    void PDDLPlannerInterface::prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions)
+    {
+        mDomainFilename = mTempDir + "/" + msDomainFileBasename;
+        std::ofstream out(mDomainFilename.c_str());
+
+        out << domainDescriptions;
+        out << "\n";
+        out << actionDescriptions;
+
+        out.close();
+
+        mProblemFilename = mTempDir + "/" + msProblemFileBasename;
+        std::ofstream problemOut(mProblemFilename.c_str());
+        LOG_DEBUG("Prepare problem '%s'", problem.c_str());
+        problemOut << problem;
+        problemOut << "\n";
+        problemOut.close();
+
+        mResultFilename = mTempDir + "/" + msResultFileBasename;
     }
 
     PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, double timeout, const std::string & planner)

@@ -36,9 +36,13 @@ namespace fast_downward
          */
         int getVersion() const { return 1; }
 
-        Planner();
-        Planner(const std::string & alias = "");
-        
+        /**
+         * Constructor
+         * \param resultFileBasename the preset plan result filename
+         * \param alias the specified Fast Downward alias name
+         */
+        Planner(const std::string& resultFileBasename = "plan", const std::string& alias = "");
+
         /**
          * Create plan candidates for the given pddl planning problem
          */
@@ -46,30 +50,13 @@ namespace fast_downward
 
     private:
         /**
-         *
-         */
-        void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
-
-        /**
          * Generate the plan candidates for the given problem
          * There is no priority in the order of candidates
          * \throws PlanGenerationException
          */
         PlanCandidates generatePlanCandidates();
-
-        double      mTimeout;
-        std::string mTempDir;
-        std::string mDomainFilename;
-        std::string mProblemFilename;
-        std::string mResultFilename;
+        
         std::string mAlias;
-
-        const static std::string msResultFileBasename;
-        const static std::string msProblemFileBasename;
-        const static std::string msDomainFileBasename;
-        const static std::string msTempDirBasename;
-
-        Plan mPlan;
     };
 } 
 }

@@ -37,15 +37,17 @@ namespace uniform
         int getVersion() const { return 1; }
 
         /**
+         * Constructor
+         * \param resultFileBasename the preset plan result filename
+         */
+        Planner(const std::string& resultFileBasename = "plan");
+
+        /**
          * Create plan candidates for the given pddl planning problem
          */
         PlanCandidates plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout);
 
     private:
-        /**
-         *
-         */
-        void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
 
         /**
          * Generate the plan candidates for the given problem
@@ -53,19 +55,6 @@ namespace uniform
          * \throws PlanGenerationException
          */
         PlanCandidates generatePlanCandidates();
-
-        double      mTimeout;
-        std::string mTempDir;
-        std::string mDomainFilename;
-        std::string mProblemFilename;
-        std::string mResultFilename;
-
-        const static std::string msResultFileBasename;
-        const static std::string msProblemFileBasename;
-        const static std::string msDomainFileBasename;
-        const static std::string msTempDirBasename;
-
-        Plan mPlan;
     };
 } 
 }

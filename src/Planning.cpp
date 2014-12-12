@@ -23,11 +23,11 @@ Planning::Planning()
                     ("CEDALION", new pddl_planner::cedalion::Planner())
                     ("RANDWARD", new pddl_planner::randward::Planner())
                     ("ARVANDHERD", new pddl_planner::arvandherd::Planner())
-                    ("FDSS1", new pddl_planner::fast_downward::Planner("seq-sat-fdss-1"))
-                    ("FDSS2", new pddl_planner::fast_downward::Planner("seq-sat-fdss-2"))
-                    ("LAMA2011", new pddl_planner::fast_downward::Planner("seq-sat-lama-2011"))
-                    ("FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-2"))
-                    ("FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("seq-sat-fd-autotune-1"));
+                    ("FDSS1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-1"))
+                    ("FDSS2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-2"))
+                    ("LAMA2011", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-lama-2011"))
+                    ("FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-2"))
+                    ("FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-1"));
 }
 
 Planning::~Planning()
