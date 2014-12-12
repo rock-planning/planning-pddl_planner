@@ -4,10 +4,12 @@
 #include <string>
 #include <stdexcept>
 #include <map>
-#include <list>
+#include <vector>
 #include <string>
 #include <pddl_planner/representation/Problem.hpp>
 #include <pddl_planner/PDDLPlannerTypes.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 
 #define TIMEOUT 7.
 
@@ -147,11 +149,13 @@
 namespace pddl_planner
 {
     class PDDLPlannerInterface;
-
+    typedef std::string PlannerName;
     typedef std::map<std::string, std::string> ActionDescriptions;
     typedef std::map<std::string, std::string> DomainDescriptions;
     typedef std::map<std::string, PDDLPlannerInterface*> PlannerMap;
     typedef std::vector<PDDLPlannerInterface*> PlannerList;
+    typedef std::pair<PlannerName, PlanCandidates> PlanResult;
+    typedef std::vector< PlanResult > PlanResultList;
 
     /**
      * \class Planning
@@ -160,7 +164,6 @@ namespace pddl_planner
      */
     class Planning
     {
-        PlannerMap mPlanners;
 
     public:
         /**
@@ -185,7 +188,7 @@ namespace pddl_planner
          * Retrieves available planners
          * \return list of available planners names
          */
-        std::list<std::string> plannersAvailable();
+        std::vector<std::string> plannersAvailable();
         
         /**
          * Register an implementation of a pddl planner
@@ -238,23 +241,48 @@ namespace pddl_planner
          * \return List of solutions, i.e. plans
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const std::string& goal, double timeout = TIMEOUT, const std::string& planner = "LAMA");
+        PlanResultList plan(const std::string& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+
+        /**
+         * Plan towards a given goal
+         * \return List of solutions, i.e. plans
+         * \throws PlanGenerationException on failure
+         */
+        PlanCandidates plan(const std::string& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
 
         /**
          * Generate a plan for a given problem -- the problem definition here already contains
          * the domain description
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const representation::Problem& problem, double timeout = TIMEOUT, const std::string& planner = "LAMA");
+        PlanResultList plan(const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
          */
-        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, double timeout = TIMEOUT, const std::string& planner = "LAMA");
+        PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+
+        /**
+         * Generate a plan for a given problem -- the problem definition here already contains
+         * the domain description
+         * \throws PlanGenerationException on failure
+         */
+        PlanCandidates plan(const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
+
+        /**
+         * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
+         */
+        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
 
     private:
+        PlannerMap mPlanners;
         ActionDescriptions mActionDescriptions;
         DomainDescriptions mDomainDescriptions;
+        std::vector<boost::thread *> mPlanRunners;
+    public:
+        PlanResultList     mPlanResultList;
+        boost::mutex  mResultMutex;
+        boost::mutex mPlannerMutex;
     };
 
 

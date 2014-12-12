@@ -53,11 +53,8 @@
 #include <map>
 #include <errno.h>
 #include <pddl_planner/Planning.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <cstring>
 #include <cstdlib>
-#include <list>
 #include <unistd.h>
 
 #define TIMEOUT 7.
@@ -65,49 +62,21 @@
 
 double timeout = TIMEOUT;
 bool seq = false, liste = false;
-std::list<std::string> planners;
-std::string output = "";
+std::vector<std::string> planners;
 pddl_planner::Planning planning;
-std::list<boost::thread *> runners;
 std::string problemDescription;
-boost::mutex mutex; // protects string output
 
 void usage(int argc, char** argv)
 {
     printf("usage: %s [-p <planner-name>] [-t <timeout-seconds(float)>] <domain-description-file> <problem-file>\n    or\nusage: %s [-l <# of planners> <planner-name> <planner-name> ... ] [-t <timeout-seconds(float)>] [-s] <domain-description-file> <problem-file>\n\n    -s,  --sequential           run listed planners sequentially (no threads)\n\n", argv[0], argv[0]);
-    std::list<std::string> availablePlanners = planning.plannersAvailable();
-    std::list<std::string>::iterator it = availablePlanners.begin();
+    std::vector<std::string> availablePlanners = planning.plannersAvailable();
+    std::vector<std::string>::iterator it = availablePlanners.begin();
     std::string availablePlannersList = "";
     for(; it != availablePlanners.end(); ++it)
     {
         availablePlannersList += (*it) + " ";
     }
     printf("The following planners are available: %s\n", availablePlannersList.c_str());
-}
-
-void run_planner(const std::string & planner, double timeout)
-{
-    try
-    {
-        pddl_planner::PlanCandidates planCandidates = planning.plan(problemDescription, timeout, planner);
-        boost::unique_lock<boost::mutex> scoped_lock(mutex);
-        output += std::string("Individual Planner ") + planner + " found PlanCandidates:\n" + planCandidates.toString() + "\n";
-    }
-    catch(const std::runtime_error& e)
-    {
-        printf("Error: %s\n", e.what());
-        if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
-        {
-            printf("    Registered planners:\n");
-            pddl_planner::PlannerMap planners = planning.getPlanners();
-            pddl_planner::PlannerMap::iterator it = planners.begin();
-            for(; it != planners.end(); ++it)
-            {
-                printf("%s ", it->first.c_str());
-            }
-            printf("\n");
-        }
-    }
 }
 
 int main(int argc, char** argv)
@@ -296,99 +265,43 @@ int main(int argc, char** argv)
 
 #ifdef INPUT_VERIFICATION
     printf("Input:\n    planner(s)Name  = ");
-    for(std::list<std::string>::iterator it = planners.begin(); it != planners.end(); ++it)
+    for(std::vector<std::string>::iterator it = planners.begin(); it != planners.end(); ++it)
     {
         printf("%s ", (*it).c_str());
     }
     printf("\n    domainFilename  = %s\n    problemFilename = %s\n    timeout         = %lf (sec)\n    list            = %s\n    sequential      = %s\n", domainFilename.c_str(), problemFilename.c_str(), timeout, liste ? "true" : "false", seq ? "true" : "false");
 #endif
 
-    if(liste)
+    if(!liste)
     {
-        if(seq)
+        planners.push_back(plannerName);
+    }
+    try
+    {
+        PlanResultList planResultList = planning.plan(problemDescription, planners, seq, timeout);
+        PlanResultList::iterator it = planResultList.begin();
+        for(; planResultList.end() != it; ++it)
         {
-            long size;
-            char *buf;
-            char *dirname_ptr;
-            size = pathconf(".", _PC_PATH_MAX);
-            if ((buf = (char *)malloc((size_t)size)) == NULL)
-            {
-                fprintf(stderr, "Error allocating buffer memory.\n%s\n", strerror(errno));
-                exit(1);
-            }
-            dirname_ptr = getcwd(buf, (size_t)size);
-            std::list<std::string>::iterator it = planners.begin();
-            for(; it != planners.end(); ++it)
-            {
-                int result = chdir(dirname_ptr); // avoiding getcwd() errors after cleanups
-                if(-1 == result)
-                {
-                    fprintf(stderr, "Error: failed to change current working directory for planner %s.\n    %s\n", (*it).c_str(), strerror(errno));
-                }
-                try
-                {
-                    PlanCandidates planCandidates = planning.plan(problemDescription, timeout, (*it));
-                    printf("\n****Planner %s output:****\n    PlanCandidates:\n%s\n", (*it).c_str(), planCandidates.toString().c_str());
-                }
-                catch(const std::runtime_error& e)
-                {
-                    printf("Error: %s\n", e.what());
-                    if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
-                    {
-                        printf("    Registered planners:\n");
-                        PlannerMap planners = planning.getPlanners();
-                        PlannerMap::iterator it = planners.begin();
-                        for(; it != planners.end(); ++it)
-                        {
-                            printf("%s ", it->first.c_str());
-                        }
-                    }
-                    printf("\nSkipping\n");
-                }
-            }
-            if(dirname_ptr)free(dirname_ptr);
-        }
-        else
-        {
-            std::list<std::string>::iterator it = planners.begin();
-            int count = 0;
-            for(; it != planners.end(); ++it)
-            {
-                runners.push_back(new boost::thread(run_planner, (*it), timeout));
-            }
-            std::list<boost::thread *>::iterator itt = runners.begin();
-            count = 0;
-            for(; itt != runners.end(); ++itt)
-            {
-                (*itt)->join();
-                delete (*itt);
-            }
-            printf("%s\n", output.c_str());
+            PlanResult plan = (*it);
+            printf("Planner %s:\n%s\n", plan.first.c_str(), plan.second.toString().c_str());
         }
     }
-    else
+    catch(const std::runtime_error& e)
     {
-        try
+        printf("Error: %s\n", e.what());
+        if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
         {
-            PlanCandidates planCandidates = planning.plan(problemDescription, timeout, plannerName);
-            printf("Individual Planner %s found PlanCandidates:\n%s\n", plannerName.c_str(), planCandidates.toString().c_str());
-        }
-        catch(const std::runtime_error& e)
-        {
-            printf("Error: %s\n", e.what());
-            if(!strncmp(e.what(),"pddl_planner::Planning: planner with name '", strlen("pddl_planner::Planning: planner with name '")))
+            printf("    Registered planners:\n");
+            PlannerMap planners = planning.getPlanners();
+            PlannerMap::iterator it = planners.begin();
+            for(; it != planners.end(); ++it)
             {
-                printf("    Registered planners:\n");
-                PlannerMap planners = planning.getPlanners();
-                PlannerMap::iterator it = planners.begin();
-                for(; it != planners.end(); ++it)
-                {
-                    printf("%s ", it->first.c_str());
-                }
-                printf("\n");
+                printf("%s ", it->first.c_str());
             }
+            printf("\nFor a list of available planners (out of the registered ones) please use option \"--help\" alone!\n");
         }
     }
+
 
 
     return 0;

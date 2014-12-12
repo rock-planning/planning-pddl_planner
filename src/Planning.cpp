@@ -40,9 +40,9 @@ Planning::~Planning()
     }
 }
 
-std::list<std::string> Planning::plannersAvailable()
+std::vector<std::string> Planning::plannersAvailable()
 {
-    std::list<std::string> result;
+    std::vector<std::string> result;
     PlannerMap::iterator it = mPlanners.begin();
     for(; it != mPlanners.end(); ++it)
     {
@@ -127,26 +127,96 @@ std::string Planning::getDomainDescriptions() const
     return domainDescriptions;
 }
 
-PlanCandidates Planning::plan(const std::string& problem, double timeout, const std::string& planner_name)
+void run_planner(const std::string & plannerName, const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, Planning * planning, double timeout)
+{
+    PDDLPlannerInterface* planner;
+    {
+        boost::unique_lock<boost::mutex> scoped_lock(planning->mPlannerMutex);
+        planner = planning->getPlanner(plannerName);
+    }
+    pddl_planner::PlanCandidates planCandidates = planner->plan(problem, actionDescriptions, domainDescriptions, timeout);
+    boost::unique_lock<boost::mutex> scoped_lock(planning->mResultMutex);
+    planning->mPlanResultList.push_back(std::pair<PlannerName, PlanCandidates> (plannerName, planCandidates));
+}
+
+PlanResultList Planning::plan(const std::string& problem, const std::vector<std::string>& planners, bool sequential, double timeout)
+{
+    std::string actionDescriptions = getActionDescriptions(), domainDescriptions = getDomainDescriptions();
+    LOG_DEBUG_S << (sequential ? "Sequential " : "") << "Planning requested: " << std::endl
+        << "-DOMAIN-" << std::endl << domainDescriptions
+        << "-PROBLEM-" << std::endl << problem;
+
+    if(sequential)
+    {
+        long size;
+        char *buf;
+        char *dirname_ptr;
+        size = pathconf(".", _PC_PATH_MAX);
+        if ((buf = (char *)malloc((size_t)size)) == NULL)
+        {
+            fprintf(stderr, "Error allocating buffer memory.\n%s\n", strerror(errno));
+            exit(1);
+        }
+        dirname_ptr = getcwd(buf, (size_t)size);
+
+        for(std::vector<std::string>::const_iterator it = planners.begin(); planners.end() != it; ++it)
+        {
+            std::string planner_name = (*it);
+            PDDLPlannerInterface* planner = getPlanner(planner_name);
+            mPlanResultList.push_back(std::pair<PlannerName, PlanCandidates> (planner_name, planner->plan(problem, actionDescriptions, domainDescriptions, timeout)));
+        }
+        if(dirname_ptr)free(dirname_ptr);
+    }
+    else
+    {
+        std::vector<std::string>::const_iterator it = planners.begin();
+        for(; it != planners.end(); ++it)
+        {
+            mPlanRunners.push_back(new boost::thread(run_planner, (*it), problem, actionDescriptions, domainDescriptions, this, timeout));
+        }
+        std::vector<boost::thread *>::iterator itt = mPlanRunners.begin();
+        for(; itt != mPlanRunners.end(); ++itt)
+        {
+            (*itt)->join();
+            delete (*itt);
+        }
+    }
+    return mPlanResultList;
+}
+
+PlanCandidates Planning::plan(const std::string& problem, const std::string& plannerName, double timeout)
 {
     LOG_DEBUG_S << "Planning requested: " << std::endl
         << "-DOMAIN-" << std::endl << getDomainDescriptions()
         << "-PROBLEM-" << std::endl << problem;
-
-    PDDLPlannerInterface* planner = getPlanner(planner_name);
+    PDDLPlannerInterface* planner = getPlanner(plannerName);
     return planner->plan(problem, getActionDescriptions(), getDomainDescriptions(), timeout);
 }
 
-PlanCandidates Planning::plan(const representation::Problem& problem, double timeout, const std::string& planner_name)
+
+PlanResultList Planning::plan(const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential, double timeout)
 {
     setDomainDescription(problem.domain.name, problem.domain.toLISP());
-    return plan(problem.toLISP(), timeout, planner_name);
+    return plan(problem.toLISP(), planners, sequential, timeout);
 }
 
-PlanCandidates Planning::plan(const representation::Domain& domain, const representation::Problem& problem, double timeout, const std::string& planner_name)
+PlanResultList Planning::plan(const representation::Domain& domain, const representation::Problem& problem, const std::vector<std::string>& planners, bool sequential, double timeout)
 {
     setDomainDescription(domain.name, domain.toLISP());
-    return plan(problem.toLISP(), timeout, planner_name);
+    return plan(problem.toLISP(), planners, sequential, timeout);
+}
+
+
+PlanCandidates Planning::plan(const representation::Problem& problem, const std::string& plannerName, double timeout)
+{
+    setDomainDescription(problem.domain.name, problem.domain.toLISP());
+    return plan(problem.toLISP(), plannerName, timeout);
+}
+
+PlanCandidates Planning::plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& plannerName, double timeout)
+{
+    setDomainDescription(domain.name, domain.toLISP());
+    return plan(problem.toLISP(), plannerName, timeout);
 }
 
 }
