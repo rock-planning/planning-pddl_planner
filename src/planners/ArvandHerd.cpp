@@ -23,10 +23,10 @@ Planner::Planner(const std::string& resultFileBasename)
 PlanCandidates Planner::plan(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions, double timeout)
 {
     LOG_DEBUG("Planner called with problem: '%s'", problem.c_str());
-    int result = system("which arvand-herd-planner");
+    int result = system("which arvand_herd-planner");
     if(result != 0)
     {
-        std::string msg = "Could not find 'arvand-herd-planner' script";
+        std::string msg = "Could not find 'arvand_herd-planner' script";
         LOG_ERROR("%s",msg.c_str());
         throw PlanGenerationException(msg);
     }
