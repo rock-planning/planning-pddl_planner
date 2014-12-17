@@ -69,15 +69,19 @@ std::string problemDescription;
 
 void usage(int argc, char** argv)
 {
-    printf("usage: %s [-p <planner-name>] [-t <timeout-seconds(float)>] <domain-description-file> <problem-file>\n    or\nusage: %s [-l <# of planners> <planner-name> <planner-name> ... ] [-t <timeout-seconds(float)>] [-s] <domain-description-file> <problem-file>\n\n    -s,  --sequential           run listed planners sequentially (no threads)\n\n", argv[0], argv[0]);
-    std::vector<std::string> availablePlanners = planning.plannersAvailable();
-    std::vector<std::string>::iterator it = availablePlanners.begin();
-    std::string availablePlannersList = "";
+    printf("usage: %s [-p <planner-name>] [-t <timeout-seconds(float)>] <domain-description-file> <problem-file>\n",argv[0]);
+    printf("or\n");
+    printf("usage: %s [-l <# of planners> <planner-name> <planner-name> ... ] [-t <timeout-seconds(float)>]\n", argv[0]);
+    printf("          [-s] <domain-description-file> <problem-file>\n");
+    printf("DESCRIPTION OF OPTIONS\n");
+    printf("      -s,--sequential    run listed planners sequentially (no threads)\n");
+    std::set<std::string> availablePlanners = planning.getAvailablePlanners();
+    std::set<std::string>::iterator it = availablePlanners.begin();
+    printf("AVAILABLE PLANNERS\n");
     for(; it != availablePlanners.end(); ++it)
     {
-        availablePlannersList += (*it) + " ";
+        printf("    %s\n", it->c_str());
     }
-    printf("The following planners are available: %s\n", availablePlannersList.c_str());
 }
 
 int main(int argc, char** argv)

@@ -189,7 +189,7 @@ namespace pddl_planner
          * Retrieves available planners
          * \return list of available planners names
          */
-        std::vector<std::string> plannersAvailable();
+        std::set<std::string> getAvailablePlanners();
         
         /**
          * Register an implementation of a pddl planner

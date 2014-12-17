@@ -22,6 +22,12 @@ namespace pddl_planner
     const std::string PDDLPlannerInterface::msProblemFileBasename = "problem.pddl";
     const std::string PDDLPlannerInterface::msTempDirBasename = "/tmp";
 
+    bool PDDLPlannerInterface::isAvailable() const
+    {
+        std::string cmd = std::string("which ") + getCmd() + " > /dev/null";
+        return 0 == system(cmd.c_str());
+    }
+
     void PDDLPlannerInterface::cleanup(const std::string & dir, const std::list<std::string> & files)
     {
         std::list<std::string>::const_iterator it = files.begin();

@@ -40,16 +40,16 @@ Planning::~Planning()
     }
 }
 
-std::vector<std::string> Planning::plannersAvailable()
+std::set<std::string> Planning::getAvailablePlanners()
 {
-    std::vector<std::string> result;
+    std::set<std::string> result;
     PlannerMap::iterator it = mPlanners.begin();
     for(; it != mPlanners.end(); ++it)
     {
-        std::string cmd = std::string("which ") + it->second->getCmd() + " > /dev/null";
-        if(0 == system(cmd.c_str()))
+        PDDLPlannerInterface* planner = it->second;
+        if(planner->isAvailable())
         {
-            result.push_back(it->first);
+            result.insert(it->first);
         }
     }
     return result;

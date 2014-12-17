@@ -12,6 +12,13 @@ namespace pddl_planner
         virtual ~PDDLPlannerInterface() {}
 
         /**
+         * Check if the given planner is available, i.e. standard implementation
+         * uses checks availability via the command returned by getCmd()
+         * \return true if planner is callable, false otherwise
+         */
+        virtual bool isAvailable() const;
+
+        /**
          * removes listed files and additionally completely removes the provided directory
          * \param dir name of dir to be completely removed
          * \param files the list of file names to be removed
