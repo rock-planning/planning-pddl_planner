@@ -16,18 +16,20 @@ namespace pddl_planner
 
 Planning::Planning()
 {
-    mPlanners = boost::assign::map_list_of
-                    ("LAMA", dynamic_cast<pddl_planner::PDDLPlannerInterface*>(new pddl_planner::lama::Planner()))
-                    ("BFSF", new pddl_planner::bfsf::Planner())
-                    ("UNIFORM", new pddl_planner::uniform::Planner())
-                    ("CEDALION", new pddl_planner::cedalion::Planner())
-                    ("RANDWARD", new pddl_planner::randward::Planner())
-                    ("ARVANDHERD", new pddl_planner::arvandherd::Planner())
-                    ("FDSS1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-1"))
-                    ("FDSS2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-2"))
-                    ("LAMA2011", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-lama-2011"))
-                    ("FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-2"))
-                    ("FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-1"));
+    mPlanners =
+         {
+                    {"LAMA", dynamic_cast<pddl_planner::PDDLPlannerInterface*>(new pddl_planner::lama::Planner())},
+                    {"BFSF", new pddl_planner::bfsf::Planner()},
+                    {"UNIFORM", new pddl_planner::uniform::Planner()},
+                    {"CEDALION", new pddl_planner::cedalion::Planner()},
+                    {"RANDWARD", new pddl_planner::randward::Planner()},
+                    {"ARVANDHERD", new pddl_planner::arvandherd::Planner()},
+                    {"FDSS1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-1")},
+                    {"FDSS2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fdss-2")},
+                    {"LAMA2011", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-lama-2011")},
+                    {"FDAUTOTUNE2", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-2")},
+                    {"FDAUTOTUNE1", new pddl_planner::fast_downward::Planner("sas_plan", "seq-sat-fd-autotune-1")}
+        };
 }
 
 Planning::~Planning()
