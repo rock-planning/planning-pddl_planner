@@ -3,9 +3,10 @@
       Simple pddl planner interface, further information about PDDL can be found at: 
       http://ipc.informatik.uni-freiburg.de/PddlExtension
   </description>
+  <maintainer>Thomas Roehr/thomas.roehr@dfki.de</maintainer>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
   <license>LGPLv3 or higher</license>
-  <url>http://github.com/rock-planning/pddl_planner.git</url>
+  <url>http://github.com/rock-planning/planning-pddl_planner</url>
   <depend package="base/types" />
   <depend package="planning/arvand_herd" optional="1" />
   <depend package="planning/bfsf" optional="1" />
