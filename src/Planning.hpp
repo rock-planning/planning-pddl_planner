@@ -183,13 +183,13 @@ namespace pddl_planner
          * Retrieve the map of all registered planners 
          * \return map of registered planners
          */
-        PlannerMap getPlanners() { return mPlanners; }
+        PlannerMap getPlanners() const { return mPlanners; }
         
         /**
          * Retrieves available planners
          * \return list of available planners names
          */
-        std::set<std::string> getAvailablePlanners();
+        std::set<std::string> getAvailablePlanners() const;
         
         /**
          * Register an implementation of a pddl planner

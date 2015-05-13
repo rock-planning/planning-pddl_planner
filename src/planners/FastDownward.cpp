@@ -32,7 +32,7 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
     }
 
     std::string currentTime = base::Time::now().toString();
-    fs::path path(msTempDirBasename + "/" + currentTime + "_fd");
+    fs::path path(msTempDirBasename + "/" + currentTime + "_" + mAlias);
 
     if(!fs::exists(path))
     {

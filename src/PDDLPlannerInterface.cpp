@@ -28,27 +28,34 @@ namespace pddl_planner
         return 0 == system(cmd.c_str());
     }
 
-    void PDDLPlannerInterface::cleanup(const std::string & dir, const std::list<std::string> & files)
+    void PDDLPlannerInterface::cleanup(const std::string& dir, const std::list<std::string> & files)
     {
         std::list<std::string>::const_iterator it = files.begin();
         for(; files.end() != it; ++it)
         {
-            boost::filesystem::remove(boost::filesystem::path(*(it)));
+            try {
+                boost::filesystem::remove(boost::filesystem::path(*(it)));
+            } catch(const boost::filesystem::filesystem_error& e)
+            {
+                LOG_WARN("%s",e.what());
+            }
         }
+
         boost::filesystem::path path(dir);
         boost::filesystem::remove_all(path);
     }
 
-    void run_planner(const std::string & cmd, const std::string & planner, double timeout)
+    void run_planner(const std::string& cmd, const std::string& planner, double timeout)
     {
         std::string command = cmd + " > /dev/null";
         int result = system(command.c_str());
         if(-1 == result)
         {
-            std::string msg = "Error: planner " + planner + " returned an error during execution";
+            std::string msg = "Planner " + planner + " returned an error during execution";
             LOG_ERROR("%s",msg.c_str());
             throw PlanGenerationException(msg);
         }
+
         if(result)
         {
              LOG_WARN("Planner %s returned non-zero exit status", planner.c_str());
@@ -76,15 +83,13 @@ namespace pddl_planner
         mResultFilename = mTempDir + "/" + msResultFileBasename;
     }
 
-    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, double timeout, const std::string & planner)
+    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string& cmd, const std::string& tempDir, const std::string& resultFilename, const std::list<std::string> & patternList, double timeout, const std::string& planner)
     {
-        int res = chdir(tempDir.c_str());
-        if(-1 == res)
-        {
-            LOG_ERROR("Error: failed to change current working directory for planner %s.\n    %s\n", planner.c_str(), strerror(errno));
-            exit(1);
-        }
-        boost::thread run_planner_thread(run_planner, cmd, planner, timeout + 0.001);
+        // Make sure that directory is changed in subshell, to allow parallel
+        // execution of planner without interfering
+        std::string command = "cd " + tempDir + ";" + cmd;
+        LOG_DEBUG("Run planner '%s' with command: '%s' and timeout in s: %.2f", planner.c_str(), command.c_str(), timeout);
+        boost::thread run_planner_thread(run_planner, command, planner, timeout + 0.001);
         bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeout)));
         if(!result)
         {
@@ -115,14 +120,8 @@ namespace pddl_planner
             }
             LOG_WARN("Planner %s has been successfully killed", planner.c_str());
         }
-        res = chdir("/");
-        if(-1 == res)
-        {
-            LOG_ERROR("Error: failed to change current working directory for planner %s.\n    %s\n", planner.c_str(), strerror(errno));
-            exit(1);
-        }
-        PlanCandidates planCandidates;
 
+        PlanCandidates planCandidates;
         fs::path directory(tempDir);
 
         if(!fs::is_directory(directory))

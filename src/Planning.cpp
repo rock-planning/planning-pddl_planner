@@ -42,10 +42,10 @@ Planning::~Planning()
     }
 }
 
-std::set<std::string> Planning::getAvailablePlanners()
+std::set<std::string> Planning::getAvailablePlanners() const
 {
     std::set<std::string> result;
-    PlannerMap::iterator it = mPlanners.begin();
+    PlannerMap::const_iterator it = mPlanners.begin();
     for(; it != mPlanners.end(); ++it)
     {
         PDDLPlannerInterface* planner = it->second;
@@ -143,7 +143,8 @@ void run_planner(const std::string & plannerName, const std::string& problem, co
 
 PlanResultList Planning::plan(const std::string& problem, const std::set<std::string>& planners, bool sequential, double timeout)
 {
-    std::string actionDescriptions = getActionDescriptions(), domainDescriptions = getDomainDescriptions();
+    std::string actionDescriptions = getActionDescriptions();
+    std::string domainDescriptions = getDomainDescriptions();
     LOG_DEBUG_S << (sequential ? "Sequential " : "") << "Planning requested: " << std::endl
         << "-DOMAIN-" << std::endl << domainDescriptions
         << "-PROBLEM-" << std::endl << problem;
@@ -151,8 +152,8 @@ PlanResultList Planning::plan(const std::string& problem, const std::set<std::st
     if(sequential)
     {
         long size;
-        char *buf;
-        char *dirname_ptr;
+        char* buf;
+        char* dirname_ptr;
         size = pathconf(".", _PC_PATH_MAX);
         if ((buf = (char *)malloc((size_t)size)) == NULL)
         {
@@ -165,9 +166,17 @@ PlanResultList Planning::plan(const std::string& problem, const std::set<std::st
         {
             std::string planner_name = (*it);
             PDDLPlannerInterface* planner = getPlanner(planner_name);
-            mPlanResultList.push_back(std::pair<PlannerName, PlanCandidates> (planner_name, planner->plan(problem, actionDescriptions, domainDescriptions, timeout)));
+
+            PlanCandidates planCandidates = planner->plan(problem, actionDescriptions, domainDescriptions, timeout);
+
+            std::pair<PlannerName, PlanCandidates> solution(planner_name, planCandidates);
+            mPlanResultList.push_back(solution);
         }
-        if(dirname_ptr)free(dirname_ptr);
+
+        if(dirname_ptr)
+        {
+            free(dirname_ptr);
+        }
     }
     else
     {

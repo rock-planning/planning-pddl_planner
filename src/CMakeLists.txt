@@ -1,4 +1,9 @@
-find_package(Boost REQUIRED filesystem system thread chrono)
+find_package(Boost REQUIRED
+    filesystem
+    system
+    thread
+    chrono
+    program_options)
 
 rock_library(pddl_planner
     SOURCES Planning.cpp
