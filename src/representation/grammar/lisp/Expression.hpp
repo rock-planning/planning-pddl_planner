@@ -243,7 +243,7 @@ struct ExpressionList : qi::grammar<Iterator, pddl_planner::representation::Expr
 {
     ExpressionList() : ExpressionList::base_type(expression_list_rule, "ExpressionList-lisp_grammar")
     {
-        expression_list_rule = +expression [ phoenix::push_back(label::_val) = label::_1 ];
+        expression_list_rule = +expression [ phoenix::push_back(label::_val, label::_1) ];
         GRAMMAR_DEBUG_RULE(expression_list_rule);
     }
 
