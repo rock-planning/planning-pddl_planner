@@ -32,8 +32,10 @@ rock_library(pddl_planner
         representation/Domain.hpp
         representation/Problem.hpp
         representation/grammar/lisp/Expression.hpp
-    DEPS_PKGCONFIG base-types
+    DEPS_PKGCONFIG
+        base-types
         base-lib
+        base-logging
     DEPS_CMAKE Boost
     )
 

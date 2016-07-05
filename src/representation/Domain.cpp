@@ -3,7 +3,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include "grammar/lisp/Expression.hpp"
 
 namespace pddl_planner {

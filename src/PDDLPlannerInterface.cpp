@@ -4,8 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
-#include <base/logging.h>
-#include <base/time.h>
+#include <base-logging/Logging.hpp>
+#include <base/Time.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono/chrono.hpp>
 #include <signal.h>
