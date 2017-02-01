@@ -36,7 +36,12 @@ rock_library(pddl_planner
         base-types
         base-lib
         base-logging
-    DEPS_CMAKE Boost
+    DEPS_PLAIN
+        Boost_FILESYSTEM
+        Boost_SYSTEM
+        Boost_THREAD
+        Boost_CHRONO
+        Boost_PROGRAM_OPTIONS
     )
 
 rock_executable(pddl_planner_bin Main.cpp
