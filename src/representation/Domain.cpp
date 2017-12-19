@@ -427,9 +427,22 @@ Domain::Domain(const std::string& name)
     addRequirement("typing");
 }
 
-void Domain::addType(const Type& type)
+void Domain::addType(const Type& type, const Type& parentType)
 {
+    std::map<Type,Type>::const_iterator cit = type2parent.find(type);
+    if(cit != type2parent.end())
+    {
+        if(cit->second != parentType)
+        {
+            throw std::invalid_argument("pddl_planner::representation::Domain: type '"
+                    + type + "' has already been added with different parent type: '"
+                    + cit->second + "' vs. '" + parentType);
+        }
+        return;
+    }
+
     types.push_back(type);
+    type2parent[type] = parentType;
 }
 
 void Domain::addConstant(const TypedItem& constant, bool overwrite)
@@ -656,7 +669,13 @@ std::string Domain::toLISP() const
         ss << "    (:types" << std::endl;
         BOOST_FOREACH(Type t, types)
         {
-            ss << "        " << t << std::endl;
+            std::map<Type,Type>::const_iterator cit = type2parent.find(t);
+            if(cit != type2parent.end() && !cit->second.empty())
+            {
+                ss << "        " << t << " - " << cit->second << std::endl;
+            } else {
+                ss << "        " << t << std::endl;
+            }
         }
         ss << "    ); end types" << std::endl;
     }

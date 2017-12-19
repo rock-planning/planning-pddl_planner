@@ -426,6 +426,8 @@ struct Domain
     std::string name;
     // List of types of this domain
     TypeList types;
+    // Map a type to a parent type if there is any
+    std::map<Type,Type> type2parent;
     // List of constants in this domain
     ConstantList constants;
     // List of predicates in this domain
@@ -447,7 +449,7 @@ struct Domain
      * Add a domain type
      * \param type Type definition
      */
-    void addType(const Type& type);
+    void addType(const Type& type, const Type& parentType = "");
 
     void addConstant(const TypedItem& type, bool overwrite = false);
     void addPredicate(const Predicate& predicate, bool overwrite = false);
