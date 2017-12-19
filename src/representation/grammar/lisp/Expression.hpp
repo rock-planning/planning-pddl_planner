@@ -37,7 +37,7 @@
 #endif
 
 #include <pddl_planner/representation/Problem.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 BOOST_FUSION_ADAPT_STRUCT(
     pddl_planner::representation::Expression,
@@ -63,10 +63,10 @@ namespace pddl_planner {
 namespace representation {
 namespace grammar {
 /**
- * While the implementation of this grammar shall not cover the complete ground of parsing a PDDL based 
- * LISP files, it tries to at least start with a proper foundation, if one eventually starts doing this: 
+ * While the implementation of this grammar shall not cover the complete ground of parsing a PDDL based
+ * LISP files, it tries to at least start with a proper foundation, if one eventually starts doing this:
  *
- * Right now this grammar intends to only support basic validation tasks of expressions, e.g. to provide 
+ * Right now this grammar intends to only support basic validation tasks of expressions, e.g. to provide
  * feedback when a user tries to extend parts of a domain or problem file manually / by a graphical interface
  *
  * \see http://cs-www.cs.yale.edu/homes/dvm/papers/pddl-bnf.pdf
@@ -76,7 +76,7 @@ namespace lisp {
 struct addExpressionParameterImpl
 {
     template <typename E, typename P>
-    struct result 
+    struct result
     {
         typedef void type;
     };
@@ -196,7 +196,7 @@ struct Expression : qi::grammar<Iterator, pddl_planner::representation::Expressi
     Expression() : Expression::base_type(expression_rule, "Expression-lisp_grammar")
     {
         expression_rule = quantifier_expression | general_expression;
-        general_expression = "(" 
+        general_expression = "("
                         >> label                           [ phoenix::at_c<0>(label::_val) = label::_1 ]
                         >> *(expression | simple_expression)  [ addExpressionParameter(label::_val, label::_1) ]
                         >> ")";
