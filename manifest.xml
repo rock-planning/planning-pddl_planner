@@ -5,7 +5,7 @@
   </description>
   <maintainer>Thomas Roehr/thomas.roehr@dfki.de</maintainer>
   <author>Thomas Roehr/thomas.roehr@dfki.de</author>
-  <license>LGPLv3 or higher</license>
+  <license>BSD-3-Clause</license>
   <url>http://github.com/rock-planning/planning-pddl_planner</url>
   <depend package="base/types" />
   <depend package="planning/arvand_herd" optional="1" />
