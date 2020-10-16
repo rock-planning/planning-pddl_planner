@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_CEDALION_HPP
 #define PDDL_PLANNER_CEDALION_HPP
 
-#include <pddl_planner/PDDLPlannerInterface.hpp>
+#include "../PDDLPlannerInterface.hpp"
 
 namespace pddl_planner
 {
@@ -21,7 +21,7 @@ namespace cedalion
          */
         std::string getName() const { return "CEDALION"; }
 
-        
+
         /**
          * Get name of this planner's execution script/runnable
          * \return Name of planner's main execution script/runnable
@@ -55,7 +55,7 @@ namespace cedalion
          */
         PlanCandidates generatePlanCandidates();
     };
-} 
+}
 }
 
 

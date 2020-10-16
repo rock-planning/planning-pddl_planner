@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_FASTDOWNWARD_HPP
 #define PDDL_PLANNER_FASTDOWNWARD_HPP
 
-#include <pddl_planner/PDDLPlannerInterface.hpp>
+#include "../PDDLPlannerInterface.hpp"
 
 namespace pddl_planner
 {
@@ -21,7 +21,7 @@ namespace fast_downward
          */
         std::string getName() const { return "FD"; }
 
-        
+
         /**
          * Get name of this planner's execution script/runnable
          * \return Name of planner's main execution script/runnable
@@ -55,10 +55,10 @@ namespace fast_downward
          * \throws PlanGenerationException
          */
         PlanCandidates generatePlanCandidates();
-        
+
         std::string mAlias;
     };
-} 
+}
 }
 
 

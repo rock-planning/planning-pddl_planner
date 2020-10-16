@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_INTERFACE_H
 #define PDDL_PLANNER_INTERFACE_H
 
-#include <pddl_planner/PDDLPlannerTypes.hpp>
+#include "PDDLPlannerTypes.hpp"
 #include <list>
 
 namespace pddl_planner
@@ -30,7 +30,7 @@ namespace pddl_planner
          * There is no priority in the order of candidates
          * \throws PlanGenerationException
          */
-        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, double timeout, const std::string & planner = "");
+        PlanCandidates generateCandidates(const std::string & cmd, const std::string & tempDir, const std::string & resultFilename, const std::list<std::string> & patternList, double timeoutInS, const std::string & planner = "");
 
 
         /**
@@ -66,7 +66,7 @@ namespace pddl_planner
          * \return Solutions candidates
          * \throws PlanGenerationException if not implemented
          */
-        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeout) { throw PlanGenerationException("Plan method not implemented"); }
+        virtual PlanCandidates plan(const std::string& problem, const std::string& actions, const std::string& domain, double timeoutInS) { throw PlanGenerationException("Plan method not implemented"); }
 
     protected:
         /**
@@ -74,7 +74,7 @@ namespace pddl_planner
          */
         void prepare(const std::string& problem, const std::string& actionDescriptions, const std::string& domainDescriptions);
 
-        double      mTimeout;
+        double      mTimeoutInS;
         std::string mTempDir;
         std::string mDomainFilename;
         std::string mProblemFilename;

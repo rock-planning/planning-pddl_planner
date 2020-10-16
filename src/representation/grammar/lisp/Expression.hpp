@@ -11,7 +11,7 @@
 //#define BOOST_SPIRIT_DEBUG
 #ifdef BOOST_SPIRIT_DEBUG
 // include stream operators
-#include <pddl_planner/representation/grammar/Debug.hpp>
+#include "../Debug.hpp"
 #warning "SPIRIT DEBUGGING ENABLED"
 
 #define GRAMMAR_DEBUG_RULE(X) { using boost::spirit::qi::debug; X.name(#X); debug(X); }
@@ -36,7 +36,7 @@
 #define PDDL_FUSION_ADAPT BOOST_FUSION_ADAPT_ADT
 #endif
 
-#include <pddl_planner/representation/Problem.hpp>
+#include "../../Problem.hpp"
 #include <base-logging/Logging.hpp>
 
 BOOST_FUSION_ADAPT_STRUCT(

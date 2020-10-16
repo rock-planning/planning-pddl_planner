@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_RANDWARD_HPP
 #define PDDL_PLANNER_RANDWARD_HPP
 
-#include <pddl_planner/PDDLPlannerInterface.hpp>
+#include "../PDDLPlannerInterface.hpp"
 
 namespace pddl_planner
 {
@@ -21,7 +21,7 @@ namespace randward
          */
         std::string getName() const { return "RANDWARD"; }
 
-        
+
         /**
          * Get name of this planner's execution script/runnable
          * \return Name of planner's main execution script/runnable

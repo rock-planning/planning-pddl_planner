@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_LAMA_HPP
 #define PDDL_PLANNER_LAMA_HPP
 
-#include <pddl_planner/PDDLPlannerInterface.hpp>
+#include "../PDDLPlannerInterface.hpp"
 
 namespace pddl_planner
 {
@@ -21,7 +21,7 @@ namespace lama
          */
         std::string getName() const { return "LAMA"; }
 
-        
+
         /**
          * Get name of this planner's execution script/runnable
          * \return Name of planner's main execution script/runnable

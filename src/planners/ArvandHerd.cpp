@@ -1,4 +1,4 @@
-#include <pddl_planner/planners/ArvandHerd.hpp>
+#include "ArvandHerd.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -42,7 +42,7 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
         }
     }
     mTempDir = path.string();
-    mTimeout = timeout;
+    mTimeoutInS = timeout;
     prepare(problem, actionDescriptions, domainDescriptions);
     PlanCandidates planCandidates = generatePlanCandidates();
     return planCandidates;
@@ -51,17 +51,17 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
 PlanCandidates Planner::generatePlanCandidates()
 {
     std::string cmd = "arvand-herd-planner " + mDomainFilename + " " + mProblemFilename + " " + mResultFilename;
-    
+
     std::list<std::string> pattern;
     pattern.push_back("arvand_herd/search/");
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
-    
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeoutInS, getName());
+
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));
     files.push_back(std::string("all.groups"));
     files.push_back(std::string("test.groups"));
-    
+
     cleanup(mTempDir, files);
     return planCandidates;
 }

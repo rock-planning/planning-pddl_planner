@@ -1,18 +1,21 @@
-#include <pddl_planner/Planning.hpp>
-#include <pddl_planner/PDDLPlannerInterface.hpp>
-#include <pddl_planner/planners/Lama.hpp>
-#include <pddl_planner/planners/Bfsf.hpp>
-#include <pddl_planner/planners/Uniform.hpp>
-#include <pddl_planner/planners/Randward.hpp>
-#include <pddl_planner/planners/Cedalion.hpp>
-#include <pddl_planner/planners/ArvandHerd.hpp>
-#include <pddl_planner/planners/FastDownward.hpp>
+#include "Planning.hpp"
+#include "PDDLPlannerInterface.hpp"
+#include "planners/Lama.hpp"
+#include "planners/Bfsf.hpp"
+#include "planners/Uniform.hpp"
+#include "planners/Randward.hpp"
+#include "planners/Cedalion.hpp"
+#include "planners/ArvandHerd.hpp"
+#include "planners/FastDownward.hpp"
+
 #include <boost/assign/list_of.hpp>
 #include <boost/assign.hpp>
 #include <base-logging/Logging.hpp>
 
 namespace pddl_planner
 {
+
+size_t Planning::DEFAULT_TIMEOUT_IN_S = 3600;
 
 Planning::Planning()
 {

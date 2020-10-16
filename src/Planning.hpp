@@ -7,12 +7,11 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <pddl_planner/representation/Problem.hpp>
-#include <pddl_planner/PDDLPlannerTypes.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread.hpp>
 
-#define TIMEOUT 7.
+#include "representation/Problem.hpp"
+#include "PDDLPlannerTypes.hpp"
 
 /**
  * \mainpage PDDL based planning
@@ -178,19 +177,21 @@ namespace pddl_planner
          */
         ~Planning();
 
-        
+        static size_t DEFAULT_TIMEOUT_IN_S;
+
+
         /**
-         * Retrieve the map of all registered planners 
+         * Retrieve the map of all registered planners
          * \return map of registered planners
          */
         PlannerMap getPlanners() const { return mPlanners; }
-        
+
         /**
          * Retrieves available planners
          * \return list of available planners names
          */
         std::set<std::string> getAvailablePlanners() const;
-        
+
         /**
          * Register an implementation of a pddl planner
          */
@@ -224,14 +225,14 @@ namespace pddl_planner
         void setDomainDescription(const std::string& domain, const std::string& description);
 
         /**
-         * Generate the domain description for 
+         * Generate the domain description for
          * all available domain
          * \return Domain descriptions
          */
         std::string getDomainDescriptions() const;
 
         /**
-         * Retrieve the action description for 
+         * Retrieve the action description for
          * all available actions
          * \return Action descriptions
          */
@@ -242,14 +243,14 @@ namespace pddl_planner
          * \return List of solutions, i.e. plans
          * \throws PlanGenerationException on failure
          */
-        PlanResultList plan(const std::string& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const std::string& problem, const std::set<std::string>& planners, bool sequential = false, double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
         /**
          * Plan towards a given goal
          * \return List of solutions, i.e. plans
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const std::string& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
+        PlanCandidates plan(const std::string& problem, const std::string& plannerName = "LAMA", double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
         /**
          * Generate a plan for a given problem -- the problem definition here already contains
@@ -259,11 +260,11 @@ namespace pddl_planner
          * \param planners List of planners that will be used for planning
          * \param sequential Set to true if planners should be called one after
          * another, false will execute all planners in parallel
-         * \param timeout Timeout in seconds -- will apply to each planner call
+         * \param timeoutInS Timeout in seconds -- will apply to each planner call
          * individually when using with sequential
          * \throws PlanGenerationException on failure
          */
-        PlanResultList plan(const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
@@ -272,23 +273,23 @@ namespace pddl_planner
          * \param planners List of planners that will be used for planning
          * \param sequential Set to true if planners should be called one after
          * another, false will execute all planners in parallel
-         * \param timeout Timeout in seconds -- will apply to each planner call
+         * \param timeoutInS Timeout in seconds -- will apply to each planner call
          * individually when using with sequential
          * \throws PlanGenerationException on failure
          */
-        PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeout = TIMEOUT);
+        PlanResultList plan(const representation::Domain& domain, const representation::Problem& problem, const std::set<std::string>& planners, bool sequential = false, double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
         /**
          * Generate a plan for a given problem -- the problem definition here already contains
          * the domain description
          * \throws PlanGenerationException on failure
          */
-        PlanCandidates plan(const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
+        PlanCandidates plan(const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
         /**
          * Generate a plan for a given domain and problem -- the domain associated with the problem will be overriden
          */
-        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeout = TIMEOUT);
+        PlanCandidates plan(const representation::Domain& domain, const representation::Problem& problem, const std::string& plannerName = "LAMA", double timeoutInS = DEFAULT_TIMEOUT_IN_S);
 
     private:
         PlannerMap mPlanners;

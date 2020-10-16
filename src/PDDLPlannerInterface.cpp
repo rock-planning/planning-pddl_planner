@@ -45,7 +45,7 @@ namespace pddl_planner
         boost::filesystem::remove_all(path);
     }
 
-    void run_planner(const std::string& cmd, const std::string& planner, double timeout)
+    void run_planner(const std::string& cmd, const std::string& planner, double timeoutInS)
     {
         std::string command = cmd + " > /dev/null";
         int result = system(command.c_str());
@@ -83,14 +83,14 @@ namespace pddl_planner
         mResultFilename = mTempDir + "/" + msResultFileBasename;
     }
 
-    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string& cmd, const std::string& tempDir, const std::string& resultFilename, const std::list<std::string> & patternList, double timeout, const std::string& planner)
+    PlanCandidates PDDLPlannerInterface::generateCandidates(const std::string& cmd, const std::string& tempDir, const std::string& resultFilename, const std::list<std::string> & patternList, double timeoutInS, const std::string& planner)
     {
         // Make sure that directory is changed in subshell, to allow parallel
         // execution of planner without interfering
         std::string command = "cd " + tempDir + ";" + cmd;
-        LOG_DEBUG("Run planner '%s' with command: '%s' and timeout in s: %.2f", planner.c_str(), command.c_str(), timeout);
-        boost::thread run_planner_thread(run_planner, command, planner, timeout + 0.001);
-        bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeout)));
+        LOG_DEBUG("Run planner '%s' with command: '%s' and timeout in s: %.2f", planner.c_str(), command.c_str(), timeoutInS);
+        boost::thread run_planner_thread(run_planner, command, planner, timeoutInS + 0.001);
+        bool result = run_planner_thread.try_join_for(boost::chrono::milliseconds((int)(1000. * timeoutInS)));
         if(!result)
         {
             LOG_WARN("Planner %s timed out: killing it...", planner.c_str());
@@ -105,7 +105,7 @@ namespace pddl_planner
             {
                 for(std::list<std::string>::const_iterator it = patternList.begin(); !error && it != patternList.end(); ++it)
                 {
-                    std::string command_list = "pkill --signal 9 -f " + (*it); 
+                    std::string command_list = "pkill --signal 9 -f " + (*it);
                     if(-1 == system(command_list.c_str()))
                     {
                         error = true;
@@ -169,7 +169,7 @@ namespace pddl_planner
         {
             std::string readline(buffer);
             // Result file contains
-            // (action <arg1> <arg2> ... <argN>) 
+            // (action <arg1> <arg2> ... <argN>)
             size_t pos = readline.find_first_of('(');
             size_t endpos = readline.find_last_of(')');
             readline = readline.substr(pos + 1, endpos-1);

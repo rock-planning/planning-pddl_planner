@@ -4,8 +4,8 @@
 #include <iosfwd>
 #include <utility>
 
-#include <pddl_planner/representation/Domain.hpp>
-#include <pddl_planner/representation/Problem.hpp>
+#include "../Domain.hpp"
+#include "../Problem.hpp"
 
 namespace std
 {

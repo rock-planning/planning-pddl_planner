@@ -1,4 +1,4 @@
-#include <pddl_planner/planners/Lama.hpp>
+#include "Lama.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -42,7 +42,7 @@ PlanCandidates Planner::plan(const std::string& problem, const std::string& acti
         }
     }
     mTempDir = path.string();
-    mTimeout = timeout;
+    mTimeoutInS = timeout;
     prepare(problem, actionDescriptions, domainDescriptions);
     PlanCandidates planCandidates = generatePlanCandidates();
     return planCandidates;
@@ -54,7 +54,7 @@ PlanCandidates Planner::generatePlanCandidates()
 
     std::list<std::string> pattern;
     pattern.push_back("lama-planner-search");
-    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeout, getName());
+    PlanCandidates planCandidates = generateCandidates(cmd, mTempDir, mResultFilename, pattern, mTimeoutInS, getName());
     std::list<std::string> files;
     files.push_back(std::string("output"));
     files.push_back(std::string("output.sas"));

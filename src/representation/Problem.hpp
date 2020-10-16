@@ -1,7 +1,7 @@
 #ifndef PDDL_PLANNER_REPRESENTATION_PROBLEM
 #define PDDL_PLANNER_REPRESENTATION_PROBLEM
 
-#include <pddl_planner/representation/Domain.hpp>
+#include "Domain.hpp"
 
 namespace pddl_planner {
 namespace representation {
